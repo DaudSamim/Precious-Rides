@@ -4,11 +4,10 @@
         <!--Begins Logo start-->
         <div class="logo">
             <a href="javascript:void(0)" class="simple-text logo-mini">
-                ALAR
+                PRECIOUS
             </a>
             <a href="javascript:void(0)" class="simple-text logo-normal">
-                TAXI
-            </a>
+                RIDE           </a>
         </div>
         <!--End Logo start-->
 

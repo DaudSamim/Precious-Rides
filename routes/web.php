@@ -15,6 +15,13 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+
+Route::get('/login', '\App\Http\Controllers\UserController@getLogin')->name('login');
+Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
+Route::get('/register', '\App\Http\Controllers\UserController@getRegister');
+Route::post('/register', '\App\Http\Controllers\UserController@postRegister');
+
+
 Route::get('/masters/add_customer_master', 'CustomerController@index')->name("add_customer_master");
 Route::get('/masters/add_customer_type_master', 'CustomerTypeController@index')->name("add_customer_type_master");
 Route::get('/masters/add_location_master', 'LocationController@index')->name("add_location_master");
@@ -236,3 +243,4 @@ Route::get('/page_layout/minified_sidebar', 'PageLayoutController@minified_sideb
 Route::get('/page_layout/sidebar_fixed_nav', 'PageLayoutController@sidebar_fixed_nav')->name("sidebar_fixed_nav");
 Route::get('/page_layout/top_nav_fixed', 'PageLayoutController@top_nav_fixed')->name("top_nav_fixed");
 Route::get('/page_layout/unfixed_footer', 'PageLayoutController@unfixed_footer')->name("unfixed_footer");
+
