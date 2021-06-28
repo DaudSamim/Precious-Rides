@@ -1,0 +1,41 @@
+{
+     "pages": [
+          {
+               "pagelink": "index.html",
+               "pagename": "Mysite",
+               "submenu" : [
+                    {
+                         "pagelink": "#",
+                         "pagename": "sublevel1",
+                         "submenu" : "NULL"
+                    },
+                    {
+                         "pagelink": "#",
+                         "pagename": "submenu2",
+                         "submenu" : [
+                              {
+                                   "pagelink": "#",
+                                   "pagename": "sublevel2",
+                                   "submenu" : "NULL"
+                              }
+                         ]
+                    }
+               ]
+          },
+          {
+               "pagelink": "templates.html",
+               "pagename": "Templates",
+               "submenu" : "NULL"
+          },
+          {
+               "pagelink": "aboutus.html",
+               "pagename": "About Us",
+               "submenu" : "NULL"
+          },
+          {
+               "pagelink": "contactus.html",
+               "pagename": "Contact Us",
+               "submenu" : "NULL"
+          }
+     ]
+}
