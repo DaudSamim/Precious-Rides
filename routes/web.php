@@ -56,6 +56,7 @@ Route::get('/registration/add_dnd_list', 'DndListController@index')->name("add_d
 Route::get('/registration/dnd_list', 'DndListController@list')->name("dnd_list");
 Route::get('/registration/dnd_list_data', 'DndListController@data')->name("dnd_list_data");
 Route::get('/registration/add_driver', 'DriverController@index')->name("add_dnd_list");
+Route::post('/registration/add_driver', 'DriverController@post_driver');
 Route::get('/registration/driver', 'DriverController@list')->name("driver");
 Route::get('/registration/driver_data', 'DriverController@data')->name("driver_data");
 Route::get('/registration/add_owner', 'OwnerController@index')->name("add_owner");
