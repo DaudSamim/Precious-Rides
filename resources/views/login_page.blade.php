@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta content="" name="description"/>
     <meta content="" name="author"/>
-    <title>PRECIOUS RIDE ADMIN DASHBOARD</title>
+    <title>PRECIOUS RIDE</title>
 
     <!-- For iPhone -->
     <meta name="msapplication-TileColor" content="#4076e0">
@@ -59,20 +59,24 @@
         <div class="form-holder left">
             <div class="form-content">
                 <div class="form-items">
-                    <h3 class="m-t-0">PRECIOUS RIDE.</h3>
-                    <p class="f-s-12">Access to the most powerfull tool in the entire design and web industry.</p>
+                    <h3 class="m-t-0">PRECIOUS RIDE</h3>
+                    <p class="f-s-12">Access to the most powerful tool in the entire design and web industry.</p>
                     <div class="tabbable">
                         <ul class="nav nav-tabs nav-tabs-bottom nav-justified hidden-xs hidden-sm">
-                            <li class="active"><a href="#bottom_style1" data-toggle="tab">Login</a></li>
-                            <li><a href="#bottom_style2" data-toggle="tab">Registration</a></li>
+                            <!-- <li class="active"><a href="#bottom_style1" data-toggle="tab">Login</a></li> -->
+                            <!-- <li><a href="#bottom_style2" data-toggle="tab">Registration</a></li> -->
                         </ul>
 
                         <div class="tab-content">
                             <div class="tab-pane active" id="bottom_style1">
                                 <h3 class="f-w-400 m-b-5">Welcome back!</h3>
-                                <p class="m-b-0">Sign in to your account to continue</p>
+                                <p class="m-b-0">Sign in to admin to continue</p>
                                 <br>
-                                <form method="post" action="{{ url('login') }}" class="forms-sample">
+                                @if(Session::has('info'))
+                                <p class="alert alert-info">{{ Session::get('info') }}</p>
+                                @endif
+                                <form method="post" action="/login" class="forms-sample">
+                                    @csrf
                                 <div class="form-group">
                                     <div class="sm-form-design">
                                         <!-- <input type="text" name="name" id="modal_username"
@@ -131,10 +135,10 @@
                                         <span class="mb-title text-center">Amazon</span>
                                     </a> -->
                                 </div>
-                                <div class="m-t-30 m-b-20 f-s-12 nav-tabs nav-tabs-bottom">
+                                <!-- <div class="m-t-30 m-b-20 f-s-12 nav-tabs nav-tabs-bottom">
                                     Don't have an account yet? <a href="#bottom_style2" data-toggle="tab">Sign Up</a>
                                     <a href="javascript:void(0)" class="f-s-12 d-block m-t-5">Forgot password?</a>
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="tab-pane" id="bottom_style2">

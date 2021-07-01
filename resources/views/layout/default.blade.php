@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta content="" name="description"/>
     <meta content="" name="author"/>
-    <title>ALAR TAXI ADMIN DASHBOARD</title>
+    <title>PRECIOUS RIDE</title>
 
     <!-- For iPhone -->
     <meta name="msapplication-TileColor" content="#4076e0">

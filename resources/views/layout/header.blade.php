@@ -4,9 +4,9 @@
         <ul class="nav navbar-nav m-l-0 pull-left">
             <li id="minimizeSidebar" class="navbar-toggler">
                 <a href="javascript:void(0)">
-                    <i class="icons icon-menu f-s-18 f-w-600 v-a-m m-r-10 hidden-xs"></i> <img
+                   <!--  <i class="icons icon-menu f-s-18 f-w-600 v-a-m m-r-10 hidden-xs"></i> <img
                             src="{{ asset('assets/images/logo.png') }}"
-                            alt="perfectin" class="w-115">
+                            alt="perfectin" class="w-115"> -->
                 </a>
             </li>
 
@@ -52,9 +52,9 @@
                         <i class="fa fa-wifi"></i> Apps
                     </a>
                 </li>
-                <li class="open_login_modal hidden-xs">
-                    <a href="javascript:void(0)">
-                        <i class="fa fa-sign-in"></i> Sign In
+                <li class=" hidden-xs">
+                    <a href="/logout">
+                        <i class="fa fa-sign-in"></i> Logout
                     </a>
                 </li>
                 <li id="btn-search" class="hidden-xs">
@@ -141,7 +141,7 @@
                 <li class="dropdown dropdown-user">
                     <a class="dropdown-toggle" data-toggle="dropdown">
                         <img src="{{ asset('assets/images/avatar/user-1.jpg') }}" alt="perfectin">
-                        <span>Andrew</span>
+                        <span>Admin</span>
                         <i class="caret"></i>
                     </a>
 

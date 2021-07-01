@@ -20,19 +20,22 @@ class UserController extends Controller
 
     public function postLogin(Request $request)
     {
-       // dd($request);
         $this->validate($request, [
             'email' => 'required',
             'password' => 'required',
         ]);
         
-        if (Auth::guard('web')->attempt(['username' => $request['username'], 'password' => $request['password']]))
+        if (Auth::attempt(['email' => $request['email'], 'password' => $request['password']]))
         {
-           
-            return redirect('/login');
+            return redirect()->route('dashboard');
         }
-        else return redirect()->back()->with('info', "Incorrect username or password");
+        else return redirect()->back()->with('info', "Incorrect Email or Password");
            
+    }
+
+    public function logout(){
+        Auth::logout();
+        return redirect('/login');
     }
 
     public function getRegister()

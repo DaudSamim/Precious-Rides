@@ -11,13 +11,15 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/asd', function () {
     return redirect()->route('dashboard');
 });
 
 
-Route::get('/login', '\App\Http\Controllers\UserController@getLogin')->name('login');
+Route::get('/', '\App\Http\Controllers\UserController@getLogin');
+Route::get('/login', '\App\Http\Controllers\UserController@getLogin');
 Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
+Route::get('logout', '\App\Http\Controllers\UserController@logout');
 Route::get('/register', '\App\Http\Controllers\UserController@getRegister');
 Route::post('/register', '\App\Http\Controllers\UserController@postRegister');
 

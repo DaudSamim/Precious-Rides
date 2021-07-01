@@ -1,9 +1,9 @@
-<!--Begin Sidebar-->
+Begin Sidebar-->
 <div class="sidebar no_bg" data-color="black" data-image="{{ asset('assets/images/sidebar-bg.jpg') }}">
     <div class="sidebar-wrapper">
         <!--Begins Logo start-->
         <div class="logo">
-            <a href="javascript:void(0)" class="simple-text logo-mini">
+            <a href="javascript:void(0)" class="simple-text logo-mini" style="width:82px">
                 PRECIOUS
             </a>
             <a href="javascript:void(0)" class="simple-text logo-normal">
@@ -18,7 +18,7 @@
             </div>
             <div class="info">
                 <a data-toggle="collapse" href="#taxi_user_nav" class="collapsed">
-                            <span class="ttu">Andrew Heston
+                            <span class="ttu">Admin
                                 <b class="caret"></b>
                             </span>
                 </a>
@@ -37,7 +37,7 @@
                             </a>
                         </li>
                         <li>
-                            <a class="profile-dropdown" href="javascript:void(0)">
+                            <a class="profile-dropdown" href="/logout">
                                 <span class="sidebar-mini m-t-5"><i class="icon-logout"></i></span>
                                 <span class="sidebar-normal">Logout</span>
                             </a>
@@ -1312,4 +1312,4 @@
         </ul>
     </div>
 </div>
-<!--End Sidebar-->
+<!--End Sidebar
