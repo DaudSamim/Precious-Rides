@@ -290,10 +290,10 @@ Begin Sidebar-->
                                 <span class="sidebar-normal">Tariff</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ (request()->segment(2) == 'add_dnd_list') || (request()->segment(2) == 'dnd_list') ? 'active' : '' }}">
-                            <a class="nav-link sub_link" href="{{url('registration/dnd_list')}}">
+                        <li class="nav-item {{ (request()->segment(1) == 'promo_code') || (request()->segment(2) == 'promo_code') ? 'active' : '' }}">
+                            <a class="nav-link sub_link" href="{{url('promo_code')}}">
                                 <i class="make_icon"></i>
-                                <span class="sidebar-normal">DND List</span>
+                                <span class="sidebar-normal">Promo Codes</span>
                             </a>
                         </li>
                     </ul>

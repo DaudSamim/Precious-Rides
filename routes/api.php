@@ -17,5 +17,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+// Client
 Route::post('sign_up', '\App\Http\Controllers\APIController@sign_up');
 Route::post('login','\App\Http\Controllers\APIController@login');
+Route::post('profile_update','\App\Http\Controllers\APIController@profile_update');

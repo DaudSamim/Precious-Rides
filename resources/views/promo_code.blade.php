@@ -10,13 +10,13 @@
     <script src="{{ asset('assets/plugins/DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/js/data.js') }}"></script>
-    <script src="{{ asset('assets/js/owner.js') }}"></script>
+    <!-- <script src="{{ asset('assets/js/owner.js') }}"></script> -->
 @endsection
 
 @section('content')
     <div class="panel">
         <div class="panel-heading">
-            <h6 class="panel-title">Owner</h6>
+            <h6 class="panel-title">Promo Codes</h6>
             <div class="heading-elements">
                 <ul class="icons-list">
                     <li class="fullscreen_element"><a href="javascript:void(0)"></a></li>
@@ -31,25 +31,24 @@
                 <div class="col-lg-12">
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered w-in-100 nowrap" id="table">
+                            <a href="/add_promo"><button style="float: right; margin: 1%" class="btn btn-sm btn-dark">Add Promo Code</button></a>
                             <thead>
                             <tr>
                                 <th>S.No</th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Mobile</th>
-                                <th>Address</th>
-                                <th>Status</th>
+                                <th>Code</th>
+                                <th>Discount</th>
+                                <th>Expiry</th>
+                              
                                 <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
-                                @foreach($owners as $row)
+                               @foreach($promo as $row)
                                     <td>{{$row->id}}</td>
-                                    <td>{{$row->name}}</td>
-                                    <td>{{$row->username}}</td>
-                                    <td>{{$row->primary_number}}</td>
-                                    <td>{{$row->address}}</td>
-                                    <td>{{$row->status}}</td>
+                                    <td>{{$row->code}}</td>
+                                    <td>{{$row->discount}}</td>
+                                    <td>{{$row->expiry}}</td>
+                                   
                                     <td><button class="btn btn-sm btn-primary">Edit</button></td>
                                 @endforeach
                             </tbody>

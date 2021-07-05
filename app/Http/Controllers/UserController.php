@@ -63,5 +63,55 @@ class UserController extends Controller
              return redirect('/login')->with('success','Successfully Registered');
     }
 
+    public function postOwner(Request $request){
+        $this->validate($request, [
+            'name' => 'required',
+            'username' => 'required|unique:owners',
+            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
+
+        ]);
+
+          DB::Table('owners')->insert([
+                'name' => $request->name,
+                'username' => $request->username,
+                'password' => bcrypt($request->password),
+                'primary_number' => $request->primary_number,
+                'secondary_number' => $request->secondary_number,
+                'email' => $request->email,
+                'address' => $request->address,
+                'status' => $request->status,
+
+            ]);
+
+             return redirect('/registration/owner')->with('success','Successfully Registered');
+    }
+
+    public function promoCode(){
+        $promo = DB::table('promo_codes')->orderBy('id','desc')->get();
+        return view('promo_code',compact('promo'));
+    }
+
+    public function addPromo(){
+        return view ('add_promo');
+    }
+
+    public function postPromo(Request $request){
+        $this->validate($request, [
+            'code' => 'required|min:6|max:6|unique:promo_codes',
+            'discount' => 'required|min:1|max:100',
+            'expiry' => 'required',
+
+        ]);
+
+          DB::Table('promo_codes')->insert([
+                'code' => $request->code,
+                'discount' => $request->discount,
+                'expiry' => $request->expiry,
+
+            ]);
+
+             return redirect('promo_code')->with('success','Successfully Registered');
+    }
+
 
 }

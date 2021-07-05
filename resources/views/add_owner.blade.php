@@ -28,68 +28,69 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <form id="validate" action="owner.html" data-parsley-validate="true">
+                    <form id="validate" action="/add_owner" method="post" data-parsley-validate="true">
+                        @csrf
                         <div class="row">
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Name</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="name">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Username</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="username">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Password</label>
-                                    <input type="password" class="form-control">
+                                    <input type="password" class="form-control" name="password">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Confirm Password</label>
-                                    <input type="password" class="form-control">
+                                    <input type="password" class="form-control" name="confirm_password">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Primary Mobile</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="primary_number">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label">Secondary Mobile</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="secondary_number">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label">Email</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="email">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label">Address</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" name="address">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Status</label>
-                                    <select class="form-control select_2">
+                                    <select class="form-control select_2" name="status">
                                         <option value="active">Active</option>
                                         <option value="in-active">In-Active</option>
                                         <option value="disabled">Disabled</option>

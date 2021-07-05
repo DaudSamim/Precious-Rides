@@ -11,10 +11,6 @@
 |
 */
 
-Route::get('/asd', function () {
-    return redirect()->route('dashboard');
-});
-
 
 Route::get('/', '\App\Http\Controllers\UserController@getLogin');
 Route::get('/login', '\App\Http\Controllers\UserController@getLogin');
@@ -22,6 +18,14 @@ Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
 Route::get('logout', '\App\Http\Controllers\UserController@logout');
 Route::get('/register', '\App\Http\Controllers\UserController@getRegister');
 Route::post('/register', '\App\Http\Controllers\UserController@postRegister');
+Route::post('add_owner','\App\Http\Controllers\UserController@postOwner');
+Route::get('promo_code','\App\Http\Controllers\UserController@promoCode');
+Route::get('add_promo','\App\Http\Controllers\UserController@addPromo');
+Route::post('add_promo','\App\Http\Controllers\UserController@postPromo');
+
+
+
+
 
 
 Route::get('/masters/add_customer_master', 'CustomerController@index')->name("add_customer_master");
