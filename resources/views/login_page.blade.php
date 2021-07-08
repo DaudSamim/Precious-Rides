@@ -110,17 +110,7 @@
                                                 </span>
                                                 @endif
                                     </div>
-                                    <div class="form-check pull-left">
-                                        <div class="form-check-label">
-                                            <div class="checkbox checkbox-primary">
-                                                <input id="form-check-input" class="styled form-check-input" type="checkbox" checked="">
-                                                <label for="form-check-input">
-                                                    Remember me
-                                                </label>
-                                            
-                                          </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                                 <button type="submit" class="btn p-t-12 p-b-12 btn-block btn-primary">Sign In</button>
                                 <div>

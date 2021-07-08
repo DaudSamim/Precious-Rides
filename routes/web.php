@@ -11,17 +11,32 @@
 |
 */
 
-Route::get('/asd', function () {
-    return redirect()->route('dashboard');
+
+Route::get('/', '\App\Http\Controllers\UserController@getLogin');
+Route::get('/login', '\App\Http\Controllers\UserController@getLogin')->name('login');
+Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
+
+
+
+Route::group(['middleware' => 'auth'], function () {
+
+	Route::get('/dashboard/dashboard_v1', 'IndexController@index')->name("dashboard");
+
+	Route::get('/registration/add_owner', 'OwnerController@index')->name("add_owner");
+	Route::get('/registration/owner', 'OwnerController@list')->name("owner");
+	Route::post('add_owner','\App\Http\Controllers\UserController@postOwner');
+
+	Route::get('promo_code','\App\Http\Controllers\UserController@promoCode');
+	Route::get('add_promo','\App\Http\Controllers\UserController@addPromo');
+	Route::post('add_promo','\App\Http\Controllers\UserController@postPromo');
+
+	
+	Route::get('logout', '\App\Http\Controllers\UserController@logout');
+
 });
 
 
-Route::get('/', '\App\Http\Controllers\UserController@getLogin');
-Route::get('/login', '\App\Http\Controllers\UserController@getLogin');
-Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
-Route::get('logout', '\App\Http\Controllers\UserController@logout');
-Route::get('/register', '\App\Http\Controllers\UserController@getRegister');
-Route::post('/register', '\App\Http\Controllers\UserController@postRegister');
+
 
 
 Route::get('/masters/add_customer_master', 'CustomerController@index')->name("add_customer_master");
@@ -59,15 +74,14 @@ Route::get('/registration/add_driver', 'DriverController@index')->name("add_dnd_
 Route::post('/registration/add_driver', 'DriverController@post_driver');
 Route::get('/registration/driver', 'DriverController@list')->name("driver");
 Route::get('/registration/driver_data', 'DriverController@data')->name("driver_data");
-Route::get('/registration/add_owner', 'OwnerController@index')->name("add_owner");
-Route::get('/registration/owner', 'OwnerController@list')->name("owner");
+
 Route::get('/registration/owner_data', 'OwnerController@list_data')->name("owner_data");
 Route::get('/registration/traiff', 'TraiffController@index')->name("traiff");
 Route::get('/registration/traiff_data', 'TraiffController@data')->name("traiff_data");
 Route::get('/registration/vehicle', 'VehicleRegController@index')->name("vehicle");
 Route::get('/registration/vehicle_data', 'VehicleRegController@data')->name("vehicle_data");
 
-Route::get('/dashboard/dashboard_v1', 'IndexController@index')->name("dashboard");
+
 Route::get('/dashboard/dashboard_v2', 'DashboardController@index')->name("dashboard2");
 
 Route::get('/ui_elements/accordion', 'UiElementController@accordion')->name("accordion");

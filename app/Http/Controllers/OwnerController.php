@@ -15,6 +15,7 @@ class OwnerController extends Controller
     public function list()
     {
         $owners = DB::table('owners')->get();
+        $owners = DB::table('owners')->orderBy('id','desc')->get();
         return view('owner',compact('owners'));
     }
     

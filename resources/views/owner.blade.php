@@ -72,6 +72,31 @@
                             @endforeach
                         </body>
                     </table>
+                            </thead>
+                            <tbody>
+                                @foreach($owners as $row)
+                                    <td>{{$row->id}}</td>
+                                    <td>{{$row->name}}</td>
+                                    <td>{{$row->username}}</td>
+                                    <td>{{$row->primary_number}}</td>
+                                    <td>{{$row->address}}</td>
+                                    <td>{{$row->status}}</td>
+                                    <td><button class="btn btn-sm btn-primary">Edit</button></td>
+                                @endforeach
+                            </tbody>
+                          <!--   <tfoot>
+                            <tr id="col_filter">
+                                <th class="apply_clear">S.No</th>
+                                <th class="apply_search">Name</th>
+                                <th class="apply_select">Username</th>
+                                <th class="apply_search">Mobile</th>
+                                <th class="apply_search">Address</th>
+                                <th class="apply_select">Status</th>
+                                <th class="">Action</th>
+                            </tr>
+                            </tfoot> -->
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
