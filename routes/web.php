@@ -246,4 +246,8 @@ Route::get('/page_layout/minified_sidebar', 'PageLayoutController@minified_sideb
 Route::get('/page_layout/sidebar_fixed_nav', 'PageLayoutController@sidebar_fixed_nav')->name("sidebar_fixed_nav");
 Route::get('/page_layout/top_nav_fixed', 'PageLayoutController@top_nav_fixed')->name("top_nav_fixed");
 Route::get('/page_layout/unfixed_footer', 'PageLayoutController@unfixed_footer')->name("unfixed_footer");
+Route::get('/page', 'VehicleController@getpage')->name("getpage");
+Route::post('/add-vehicle-type-fare', 'VehicleController@postadd_vehicle_type_fare')->name("postadd_vehicle_type_fare");
+
+
 

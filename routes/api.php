@@ -18,4 +18,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('sign_up', '\App\Http\Controllers\APIController@sign_up');
+Route::post('enquiries', '\App\Http\Controllers\APIController@add_enquiries');
+Route::post('driver-attendance', '\App\Http\Controllers\APIController@add_driver_attendance');
+Route::post('driver-rating', '\App\Http\Controllers\APIController@add_driver_rating');
+Route::post('add-owner', '\App\Http\Controllers\APIController@add_owner');
+Route::post('add-trip', '\App\Http\Controllers\APIController@add_trip');
+
+
+
+
+
 Route::post('login','\App\Http\Controllers\APIController@login');

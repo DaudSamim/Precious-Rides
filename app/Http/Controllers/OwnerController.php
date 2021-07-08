@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use DB;
 
 class OwnerController extends Controller
 {
@@ -13,8 +14,10 @@ class OwnerController extends Controller
 
     public function list()
     {
-        return view('owner');
+        $owners = DB::table('owners')->get();
+        return view('owner',compact('owners'));
     }
+    
 
     public function list_data()
     {

@@ -9,7 +9,6 @@
     <script src="{{ asset('assets/plugins/DataTables/media/js/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/js/vehicle_master.js') }}"></script>
 @endsection
 
 @section('content')

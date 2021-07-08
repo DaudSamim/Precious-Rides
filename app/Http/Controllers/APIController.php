@@ -44,6 +44,167 @@ class APIController extends Controller
 
 		return json_encode($response);
 	}
+	public function add_enquiries(Request $request){
+		if(!isset($request->name) || !isset($request->number) || !isset($request->type) || !isset($request->enquiry)){
+			$data = 'Name, Contact Number,Enquiry and Enquiry Type is required';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+	
+		DB::table('enquiries')->insert([
+			'name' => $request->name,
+			'number' => $request->number, 
+
+		]);
+		$response = 'Enquiry Successfully Sent';
+		return json_encode($response);
+	}
+
+	public function add_trip(Request $request){
+		if(!isset($request->customer_id) || !isset($request->number) || !isset($request->from_location) || !isset($request->to_location)|| !isset($request->pickup_time)|| !isset($request->dropoff_time) || !isset($request->status)){
+			$data = 'Customer ID, Mobile Number,Pickup Location, Destination, Pickup Time, Dropoff Time and Status is required';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+	
+		DB::table('trips')->insert([
+			'customer_id' => $request->name,
+			'mobile' => $request->number, 
+			'from_location' => $request->from_location,
+			'to_location' => $request->to_location,
+			'pickup_time' => $request->pickup_time,
+			'dropoff_time' => $request->dropoff_time,
+			'status' => $request->status,
+
+		]);
+		$response = 'Trip Successfully Sent';
+		return json_encode($response);
+	}
+
+	public function add_owner(Request $request){
+		if(!isset($request->name) || !isset($request->number_primary) || !isset($request->number_secondary) || !isset($request->username) || !isset($request->password)|| !isset($request->email)|| !isset($request->address)|| !isset($request->status)){
+			$data = 'Name, Username, Password, Email, Contact Primary Number, Contact Secondary Number, Address And Status is required';
+			return json_encode($data);
+		}
+		$password = DB::table('owners')->where('password',$request->password)->first();
+		if(isset($password)){
+			$data = 'Password Already Taken';
+		    return json_encode($data);
+		}
+		if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+			$data = 'Email Format is not okay';
+		    return json_encode($data);
+	  }
+
+		if(!is_numeric($request->number_primary) || strlen($request->number_primary) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->number_secondary) || strlen($request->number_secondary) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+	
+		DB::table('owners')->insert([
+			'name' => $request->name,
+			'username' => $request->username, 
+			'password' => $request->password, 
+			'primary_number' => $request->username, 
+			'secondary_number' => $request->username, 
+			'email' => $request->email, 
+			'address' => $request->address, 
+			'status' => $request->status, 
+
+
+
+		]);
+		$response = 'Enquiry Successfully Sent';
+		return json_encode($response);
+	}
+
+	public function add_driver_attendance(Request $request){
+		if(!isset($request->name) || !isset($request->number) || !isset($request->vid) || !isset($request->logged_in) || !isset($request->login_hours) || !isset($request->today_collection) || !isset($request->status)){
+			$data = 'Driver Name, Contact Number, vid, Logged in, Login Hours, Today Collection and Status is required';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->login_hours)){
+			$data = 'Login Hours should be number of hours';
+			return json_encode($data);
+		}
+	
+		DB::table('attendance')->insert([
+			'driver_name' => $request->name,
+			'mobile' => $request->number, 
+			'vid' => $request->vid, 
+			'login_hours' => $request->login_hours, 
+			'logged_in' => $request->logged_in,
+			'today_collection' => $request->today_collection,
+			'status' => $request->status,
+
+		]);
+		$response = 'Attendance Added Successfully';
+		return json_encode($response);
+	}
+
+	public function add_driver_rating(Request $request){
+		if(!isset($request->driver_id) || !isset($request->user_id) || !isset($request->rating) || !isset($request->ride_id) ){
+			$data = 'Driver ID, User ID, Rating and Ride ID is required';
+			return json_encode($data);
+		}
+        $check = DB::table('driver_ratings')->where('user_id',$request->user_id)->where('ride_id', $request->ride_id)->first();
+
+		if(isset($check)){
+			$data = 'You cannot rate twice to this ride';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->driver_id)){
+			$data = 'Driver ID must be Numberic';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->user_id)){
+			$data = 'User ID must be Numberic';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->ride_id)){
+			$data = 'Ride ID must be Numberic';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->rating)){
+			$data = 'Invalid Rating';
+			return json_encode($data);
+		}
+		if(($request->rating < 0) || ($request->rating > 5))
+		{
+			$data = 'Invalid Rating, Rating should be between 0 and 5';
+			return json_encode($data);
+		}
+	
+		DB::table('driver_ratings')->insert([
+			'driver_id' => $request->driver_id,
+			'user_id' => $request->user_id, 
+			'rating' => $request->rating, 
+			'ride_id' => $request->ride_id, 
+			
+
+		]);
+		$response = 'Rating Added Successfully';
+		return json_encode($response);
+	}
 
 	public function all_clients(){
 		$data = DB::table('clients')->get();
