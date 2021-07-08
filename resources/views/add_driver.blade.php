@@ -28,7 +28,8 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <form id="validate" action="driver.html" data-parsley-validate="true">
+                    <form id="validate" action="/registration/add_driver" method="post" data-parsley-validate="true">
+                    @csrf <!-- {{ csrf_field() }} -->
                         <div class="row">
                             <div class="col-sm-3">
                                 <div class="form-group">
@@ -67,91 +68,91 @@
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Name</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" name="name" placeholder="Drivers Name" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Username</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" name="user_name" placeholder="Drivers Username" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Password</label>
-                                    <input type="password" class="form-control">
+                                    <input type="password" name="password" placeholder="Drivers Password" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Confirm Password</label>
-                                    <input type="password" class="form-control">
+                                    <input type="password" name="password" placeholder="Confirm Password" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Primary Mobile</label>
-                                    <input type="text" class="form-control">
+                                    <input type="number" name="mobile" placeholder="Drivers Mobile" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label">Secondary Mobile</label>
-                                    <input type="text" class="form-control">
+                                    <input type="number" name="mobile_second" placeholder="Drivers Mobile 2" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">IMEI Number</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" name="imei" placeholder="Drivers IMEI" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label">Email</label>
-                                    <input type="text" class="form-control">
+                                    <input type="email" name="email" placeholder="Drivers Emial" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Licence Number</label>
-                                    <input type="text" class="form-control">
+                                    <input type="number" name="licence_number" placeholder="Drivers Licence Number" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Licence Due</label>
-                                    <input type="text" class="form-control date_picker">
+                                    <input type="text" name="licence_due" placeholder="Drivers Licence due date" class="form-control date_picker">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Badge Number</label>
-                                    <input type="text" class="form-control date_picker">
+                                    <input type="number" name="badge_number" placeholder="Drivers Badge Number" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Badge Number Due</label>
-                                    <input type="text" class="form-control date_picker">
+                                    <input type="text" name="badge_number_due" placeholder="Drivers Badge Number Due " class="form-control date_picker">
                                 </div>
                             </div>
 
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label class="control-label required">Address</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" name="address" placeholder="Drivers Address"  class="form-control">
                                 </div>
                             </div>
 

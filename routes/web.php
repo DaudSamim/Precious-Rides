@@ -30,7 +30,13 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('add_promo','\App\Http\Controllers\UserController@addPromo');
 	Route::post('add_promo','\App\Http\Controllers\UserController@postPromo');
 
-	
+	// Driver
+	Route::get('/registration/add_driver', 'DriverController@index')->name("add_dnd_list");
+	Route::post('/registration/add_driver', 'DriverController@post_driver');
+	Route::get('/registration/driver', 'DriverController@list')->name("driver");
+	Route::get('/registration/driver_data', 'DriverController@data')->name("driver_data");
+
+
 	Route::get('logout', '\App\Http\Controllers\UserController@logout');
 
 });
@@ -70,9 +76,7 @@ Route::get('/masters/zone_master_data', 'ZoneController@data')->name("zone_maste
 Route::get('/registration/add_dnd_list', 'DndListController@index')->name("add_dnd_list");
 Route::get('/registration/dnd_list', 'DndListController@list')->name("dnd_list");
 Route::get('/registration/dnd_list_data', 'DndListController@data')->name("dnd_list_data");
-Route::get('/registration/add_driver', 'DriverController@index')->name("add_dnd_list");
-Route::get('/registration/driver', 'DriverController@list')->name("driver");
-Route::get('/registration/driver_data', 'DriverController@data')->name("driver_data");
+
 
 Route::get('/registration/owner_data', 'OwnerController@list_data')->name("owner_data");
 Route::get('/registration/traiff', 'TraiffController@index')->name("traiff");

@@ -167,11 +167,65 @@ class APIController extends Controller
 	}
 
 	public function dropoff_location(Request $request){
+			$response = (object) null;
+		if(!isset($request->location)){
+			$response->status = 400;
+			$response->message = 'Location is required';
+			$response->data = null;
+			return json_encode($response);
+		}
 
+		else{
+			$address = $request->location; // Address
+		        $apiKey = 'AIzaSyAd8q-fqcHslANRJ3WZxR5cMYY1CgtBe9I'; // Google maps now requires an API key.
+		        // Get JSON results from this request
+		       
+		        $geo = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($address).'&sensor=false&key='.$apiKey);
+		       
+		        $geo = json_decode($geo, true); // Convert the JSON to an array
+		        if (isset($geo['status']) && ($geo['status'] == 'OK')) {
+		          $latitude = $geo['results'][0]['geometry']['location']['lat']; // Latitude
+		          $longitude = $geo['results'][0]['geometry']['location']['lng']; // Longitude
+		          
+		          $data = array('location'=> $request->location,'latitude' => $latitude,'longitude' => $longitude);
+		          	$response->status = 200;
+					$response->message = 'Success';
+					$response->data = $data;
+					return json_encode($response);
+		        }
+		       return 'Location not Valid';
+		    }
 	}
 
 	public function pickup_location(Request $request){
+				$response = (object) null;
+		if(!isset($request->location)){
+			$response->status = 400;
+			$response->message = 'Location is required';
+			$response->data = null;
+			return json_encode($response);
+		}
 
+		else{
+			$address = $request->location; // Address
+		        $apiKey = 'AIzaSyAd8q-fqcHslANRJ3WZxR5cMYY1CgtBe9I'; // Google maps now requires an API key.
+		        // Get JSON results from this request
+		       
+		        $geo = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($address).'&sensor=false&key='.$apiKey);
+		       
+		        $geo = json_decode($geo, true); // Convert the JSON to an array
+		        if (isset($geo['status']) && ($geo['status'] == 'OK')) {
+		          $latitude = $geo['results'][0]['geometry']['location']['lat']; // Latitude
+		          $longitude = $geo['results'][0]['geometry']['location']['lng']; // Longitude
+		          
+		          $data = array('location'=> $request->location,'latitude' => $latitude,'longitude' => $longitude);
+		          	$response->status = 200;
+					$response->message = 'Success';
+					$response->data = $data;
+					return json_encode($response);
+		        }
+		       return 'Location not Valid';
+		    }
 	}
 
 	public function get_available_vehicles(Request $request){
