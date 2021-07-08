@@ -78,6 +78,7 @@ Route::get('/registration/dnd_list', 'DndListController@list')->name("dnd_list")
 Route::get('/registration/dnd_list_data', 'DndListController@data')->name("dnd_list_data");
 
 
+
 Route::get('/registration/owner_data', 'OwnerController@list_data')->name("owner_data");
 Route::get('/registration/traiff', 'TraiffController@index')->name("traiff");
 Route::get('/registration/traiff_data', 'TraiffController@data')->name("traiff_data");
@@ -263,4 +264,8 @@ Route::get('/page_layout/minified_sidebar', 'PageLayoutController@minified_sideb
 Route::get('/page_layout/sidebar_fixed_nav', 'PageLayoutController@sidebar_fixed_nav')->name("sidebar_fixed_nav");
 Route::get('/page_layout/top_nav_fixed', 'PageLayoutController@top_nav_fixed')->name("top_nav_fixed");
 Route::get('/page_layout/unfixed_footer', 'PageLayoutController@unfixed_footer')->name("unfixed_footer");
+Route::get('/page', 'VehicleController@getpage')->name("getpage");
+Route::post('/add-vehicle-type-fare', 'VehicleController@postadd_vehicle_type_fare')->name("postadd_vehicle_type_fare");
+
+
 

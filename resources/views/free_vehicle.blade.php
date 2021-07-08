@@ -9,7 +9,6 @@
     <script src="{{ asset('assets/plugins/DataTables/media/js/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/js/free_vehicle.js') }}"></script>
 @endsection
 
 @section('content')
@@ -45,21 +44,24 @@
                                 <th>Current Location</th>
                             </tr>
                             </thead>
-                            <tfoot>
-                            <tr id="col_filter">
-                                <th class="apply_clear">S.No</th>
-                                <th class="apply_search">VID</th>
-                                <th class="apply_search">Vehicle Number</th>
-                                <th class="apply_search">Idle Time</th>
-                                <th class="apply_search">Month Coll</th>
-                                <th class="apply_search">Empty KM</th>
-                                <th class="apply_search">Trips</th>
-                                <th class="apply_search">Collection</th>
-                                <th class="apply_search">CC Balance</th>
-                                <th class="apply_search">Login Time</th>
-                                <th class="apply_search">Current Location</th>
+                            <tbody>
+                            @foreach($vehicles as $vehicle)
+                            <tr>
+                            <td>{{$vehicle->id}}</td>
+                            <td>{{$vehicle->vid}}</td>
+                            <td>{{$vehicle->reg_no}}</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
                             </tr>
-                            </tfoot>
+
+                            @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>

@@ -10,7 +10,7 @@
     <script src="{{ asset('assets/plugins/DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/js/data.js') }}"></script>
-    <script src="{{ asset('assets/js/vehicle.js') }}"></script>
+    
 @endsection
 
 @section('content')
@@ -43,18 +43,9 @@
                                 <th>Action</th>
                             </tr>
                             </thead>
-                            <tfoot>
-                            <tr id="col_filter">
-                                <th class="apply_clear">S.No</th>
-                                <th class="apply_search">Model</th>
-                                <th class="apply_search">Reg No</th>
-                                <th class="apply_search">VID</th>
-                                <th class="apply_search">KM Reading</th>
-                                <th class="apply_search">Driver Name</th>
-                                <th class="apply_select">Status</th>
-                                <th class="">Action</th>
-                            </tr>
-                            </tfoot>
+                            <tbody>
+                            
+                        </body>
                         </table>
                     </div>
                 </div>

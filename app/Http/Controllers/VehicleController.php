@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use DB;
 
 class VehicleController extends Controller
 {
@@ -14,6 +15,32 @@ class VehicleController extends Controller
     public function list()
     {
         return view('vehicle_master');
+    }
+    public function getpage()
+    {
+        return view('vehicle_type_fare');
+    }
+
+    public function postadd_vehicle_type_fare(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required',
+            'description' => 'required',
+            'fare' => 'required',
+
+        ]);
+
+        DB::table('vehicle_type_fares')->insert([
+            'name' => $request->name,
+
+            'description' => $request->description,
+            'fare_rate' => $request->fare,
+            
+
+        ]);
+
+        return redirect()->back()->with('info', 'You have Added Data Successfully!');
     }
 
     public function data()
