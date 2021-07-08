@@ -11,10 +11,6 @@
         @endforeach
         @endif    
 
-        
-
-        
-
     <form  action="/add-vehicle-type-fare" method="post">
 
         <div class="col-md-12 equal_height">

@@ -23,6 +23,12 @@ Route::post('driver-attendance', '\App\Http\Controllers\APIController@add_driver
 Route::post('driver-rating', '\App\Http\Controllers\APIController@add_driver_rating');
 Route::post('add-owner', '\App\Http\Controllers\APIController@add_owner');
 Route::post('add-trip', '\App\Http\Controllers\APIController@add_trip');
+Route::post('add-promo', '\App\Http\Controllers\APIController@postaddpromocode');
+Route::post('invite-friend', '\App\Http\Controllers\APIController@invitefriend');
+Route::post('add-vehicle', '\App\Http\Controllers\APIController@add_vehicle');
+
+
+
 
 
 

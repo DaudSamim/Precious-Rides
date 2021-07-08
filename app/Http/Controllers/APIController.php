@@ -33,6 +33,12 @@ class APIController extends Controller
 			'number' => $request->number, 
 		]);
 
+		if(isset($_GET['id']))
+		{
+		   $id = $_GET['id'] ;
+		};
+
+
 		$status = 200;
 		$message = 'Client Successfully Stored';
 		$data = DB::table('clients')->orderBy('id','desc')->first();
@@ -206,6 +212,102 @@ class APIController extends Controller
 		return json_encode($response);
 	}
 
+	public function postaddpromocode(Request $request){
+        
+		if(!isset($request->discount) || !isset($request->date)  ){
+			$data = 'Discount and Expiry Date are required';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->discount)){
+			$data = 'Invalid Discount Value';
+			return json_encode($data);
+		}      
+        
+        $date = date('Y-m-d', time());
+        
+        if($date > $request->date){
+            $data = 'Invalid Expiry Date, The date entered is already expired';
+			return json_encode($data);
+
+        }
+		
+        
+
+        $alph = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        $code='';
+
+        for($i=0;$i<7;$i++){
+           $code .= $alph[rand(0, 55)];
+        }
+        
+        
+
+             DB::Table('promo_codes')->insert([
+            
+            'discount' => $request->discount,
+            'code' => $code,
+            'expiry' => $request->date,
+            
+            ]);
+
+			$data = 'PromoCode Created';
+			return json_encode($data);
+    }
+
+	public function invitefriend(Request $request){
+		if(!isset($request->id)){
+			$data = 'ID is required';
+			return json_encode($data);
+		}
+
+		// $url = sprintf(
+		// 	"%s://%s%s",
+		// 	isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+		// 	$_SERVER['SERVER_NAME'],
+		// 	$_SERVER['REQUEST_URI']
+		//   );
+		
+			
+		$url = "http://127.0.0.1/api/sign_up?id=".$request->id;
+		return $url;
+	}
+
+	public function add_vehicle(Request $request){
+		if((!isset($request->vid)) || (!isset($request->reg_no)) || (!isset($request->model)) || (!isset($request->driver_name)) )
+		{
+			$data = 'Registration Number, Driver Name, Model, VID is required';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->vid)){
+			$data = 'Invalid VID Value';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->reg_no)){
+			$data = 'Invalid Registration Number, Should be numeric value';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->km_reading)){
+			$data = 'Invalid Km Reading, Should be numeric value';
+			return json_encode($data);
+		}
+		
+		DB::table('vehicles')->insert([
+			'driver_name' => $request->driver_name,
+			'reg_no' => $request->reg_no, 
+			'vid' => $request->vid, 
+			'km_reading' => $request->km_reading, 
+			'model' => $request->model, 
+			'status' => "Offline", 	
+
+		]);
+
+		$response = 'Successfully Added Material';
+		return $response;
+	}
+
+
+	
 	public function all_clients(){
 		$data = DB::table('clients')->get();
 		return json_encode($data);

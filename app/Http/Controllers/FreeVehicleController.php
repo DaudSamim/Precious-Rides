@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use DB;
 class FreeVehicleController extends Controller
 {
     public function index()
     {
-        return view('free_vehicle');
+        $vehicles = DB::table('vehicles')->where('status','Online')->get();
+        return view('free_vehicle',compact('vehicles'));
     }
 
     public function data()
