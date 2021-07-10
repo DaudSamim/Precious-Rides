@@ -4,24 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use Twilio\Rest\Client;
 
 class APIController extends Controller
 {
+	protected $TWILIO_SID='AC2593330273586414db804535cd733cbc';
+	protected $TWILIO_AUTH_TOKEN="18e274a2edaea75dccca8b7bd2cf960d";
+	protected $TWILIO_NUMBER="+19142686859";
+
 	public function sign_up(Request $request){
-
-		$response = (object) null;
-
 		if(!isset($request->email) || !isset($request->number)){
-			$status = 400;
-			$message = 'Email and Contact Number is required';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
+			$data = 'Email and Contact Number is required';
+			return json_encode($data);
 		}
 
 		if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+		  	$data = 'Email Format is not okay';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
 			$status = 400;
 			$message = 'Email Format is not okay';
 			$data = null;
@@ -29,9 +33,9 @@ class APIController extends Controller
 			$response->message = $message;
 			$response->data = $data;
 			return json_encode($response);
-		} 
+		}
 
-		if(!is_numeric($request->number) || strlen($request->number) != 11){
+		if(!is_numeric($request->number) || strlen($request->number) != 13){
 			$status = 400;
 			$message = 'Number Format is not okay';
 			$data = null;
@@ -42,31 +46,24 @@ class APIController extends Controller
 		}
 
 		if(DB::table('clients')->where('email',$request->email)->first()){
-			$status = 400;
-			$message = 'Email already registered';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
+			$data = 'Email already registered';
+			return json_encode($data);
 		}
+
+		$code = $this->getRandomAuthCode();
+		$this->sendMessage($request->number, $this->getClientAuthMessage($code));
+
 
 		DB::table('clients')->insert([
 			'email' => $request->email,
-			'number' => $request->number, 
+			'number' => $request->number,
+			'verification_code' => $code,
+			'verified' => false
 		]);
-
-		if(isset($_GET['id']))
-		{
-		   $id = $_GET['id'] ;
-		};
-
 
 		$status = 200;
 		$message = 'Client Successfully Stored';
 		$data = DB::table('clients')->orderBy('id','desc')->first();
-
-		
 		$response->status = $status;
 		$response->message = $message;
 		$response->data = $data;
@@ -74,29 +71,55 @@ class APIController extends Controller
 		return json_encode($response);
 	}
 
-	public function login(Request $request){ 
+	public function verifyOPT(Request $request){
 		$response = (object) null;
-		if(!isset($request->number)){
+		if(!isset($request->opt) || !isset($request->clientId)){
 			$status = 400;
-			$message = 'Contact Number is required';
+			$message = 'OPT and client id are required';
 			$data = null;
 			$response->status = $status;
 			$response->message = $message;
 			$response->data = $data;
 			return json_encode($response);
 		}
-
-		$data = DB::table('clients')->where('number',$request->number)->first();
-		$data->code = 1234;
-		$status = 200;
-		$message = 'Login Successfully';
-
+		$client = DB::table('clients')->find($request->clientId);
+		if(!$client){
+			$status = 400;
+			$message = 'Client does not exist against this id';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
+		}
+		if($client->verification_code == $request->opt){
+			DB::table('clients')->where('id',$request->clientId)->update([
+				'verified'=>'true'
+			]);
+			$response->status = 200;
+			$response->message = 'Client Verified';
+			$response->data = true;
+			return json_encode($response);
+		}
+		else{
+			$response->status = 200;
+			$response->message = 'OPT does not match';
+			$response->data = false;
+			return json_encode($response);
+		}
+	}
+	public function login(Request $request){
+		$response = (object) null;
 		$response->status = $status;
 		$response->message = $message;
 		$response->data = $data;
 
 		return json_encode($response);
+	}
 
+	public function all_clients(){
+		$data = DB::table('clients')->get();
+		return json_encode($data);
 	}
 
 	public function profile_update(Request $request){
@@ -154,14 +177,14 @@ class APIController extends Controller
 			$address = $request->location; // Address
 		        $apiKey = 'AIzaSyAd8q-fqcHslANRJ3WZxR5cMYY1CgtBe9I'; // Google maps now requires an API key.
 		        // Get JSON results from this request
-		       
+
 		        $geo = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($address).'&sensor=false&key='.$apiKey);
-		       
+
 		        $geo = json_decode($geo, true); // Convert the JSON to an array
 		        if (isset($geo['status']) && ($geo['status'] == 'OK')) {
 		          $latitude = $geo['results'][0]['geometry']['location']['lat']; // Latitude
 		          $longitude = $geo['results'][0]['geometry']['location']['lng']; // Longitude
-		          
+
 		          $data = array('location'=> $request->location,'latitude' => $latitude,'longitude' => $longitude);
 		          	$response->status = 200;
 					$response->message = 'Success';
@@ -170,335 +193,35 @@ class APIController extends Controller
 		        }
 		       return 'Location not Valid';
 		    }
+	}
+
+	protected function sendMessage($recipientsPhoneNumber, $message){
+		$client = new Client($this->TWILIO_SID, $this->TWILIO_AUTH_TOKEN);
+		$client->messages->create($recipientsPhoneNumber,
+            ['from' => $this->TWILIO_NUMBER, 'body' => $message] );
+	}
+
+	protected function getRandomAuthCode(){
+		$digits = 4;
+		return rand(pow(10, $digits-1), pow(10, $digits)-1);
+	}
+
+	protected function getClientAuthMessage($number){
+		return "Here is your 4 digit verification code " . strval($number);
 	}
 
 	public function dropoff_location(Request $request){
-			$response = (object) null;
-		if(!isset($request->location)){
-			$response->status = 400;
-			$response->message = 'Location is required';
-			$response->data = null;
-			return json_encode($response);
-		}
 
-		else{
-			$address = $request->location; // Address
-		        $apiKey = 'AIzaSyAd8q-fqcHslANRJ3WZxR5cMYY1CgtBe9I'; // Google maps now requires an API key.
-		        // Get JSON results from this request
-		       
-		        $geo = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($address).'&sensor=false&key='.$apiKey);
-		       
-		        $geo = json_decode($geo, true); // Convert the JSON to an array
-		        if (isset($geo['status']) && ($geo['status'] == 'OK')) {
-		          $latitude = $geo['results'][0]['geometry']['location']['lat']; // Latitude
-		          $longitude = $geo['results'][0]['geometry']['location']['lng']; // Longitude
-		          
-		          $data = array('location'=> $request->location,'latitude' => $latitude,'longitude' => $longitude);
-		          	$response->status = 200;
-					$response->message = 'Success';
-					$response->data = $data;
-					return json_encode($response);
-		        }
-		       return 'Location not Valid';
-		    }
 	}
 
 	public function pickup_location(Request $request){
-				$response = (object) null;
-		if(!isset($request->location)){
-			$response->status = 400;
-			$response->message = 'Location is required';
-			$response->data = null;
-			return json_encode($response);
-		}
 
-		else{
-			$address = $request->location; // Address
-		        $apiKey = 'AIzaSyAd8q-fqcHslANRJ3WZxR5cMYY1CgtBe9I'; // Google maps now requires an API key.
-		        // Get JSON results from this request
-		       
-		        $geo = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($address).'&sensor=false&key='.$apiKey);
-		       
-		        $geo = json_decode($geo, true); // Convert the JSON to an array
-		        if (isset($geo['status']) && ($geo['status'] == 'OK')) {
-		          $latitude = $geo['results'][0]['geometry']['location']['lat']; // Latitude
-		          $longitude = $geo['results'][0]['geometry']['location']['lng']; // Longitude
-		          
-		          $data = array('location'=> $request->location,'latitude' => $latitude,'longitude' => $longitude);
-		          	$response->status = 200;
-					$response->message = 'Success';
-					$response->data = $data;
-					return json_encode($response);
-		        }
-		       return 'Location not Valid';
-		    }
 	}
 
 	public function get_available_vehicles(Request $request){
 
 	}
-	public function add_enquiries(Request $request){
-		if(!isset($request->name) || !isset($request->number) || !isset($request->type) || !isset($request->enquiry)){
-			$data = 'Name, Contact Number,Enquiry and Enquiry Type is required';
-			return json_encode($data);
-		}
 
-		if(!is_numeric($request->number) || strlen($request->number) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-		}
-	
-		DB::table('enquiries')->insert([
-			'name' => $request->name,
-			'number' => $request->number, 
-
-		]);
-		$response = 'Enquiry Successfully Sent';
-		return json_encode($response);
-	}
-
-	public function add_trip(Request $request){
-		if(!isset($request->customer_id) || !isset($request->number) || !isset($request->from_location) || !isset($request->to_location)|| !isset($request->pickup_time)|| !isset($request->dropoff_time) || !isset($request->status)){
-			$data = 'Customer ID, Mobile Number,Pickup Location, Destination, Pickup Time, Dropoff Time and Status is required';
-			return json_encode($data);
-		}
-
-		if(!is_numeric($request->number) || strlen($request->number) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-		}
-	
-		DB::table('trips')->insert([
-			'customer_id' => $request->name,
-			'mobile' => $request->number, 
-			'from_location' => $request->from_location,
-			'to_location' => $request->to_location,
-			'pickup_time' => $request->pickup_time,
-			'dropoff_time' => $request->dropoff_time,
-			'status' => $request->status,
-
-		]);
-		$response = 'Trip Successfully Sent';
-		return json_encode($response);
-	}
-
-	public function add_owner(Request $request){
-		if(!isset($request->name) || !isset($request->number_primary) || !isset($request->number_secondary) || !isset($request->username) || !isset($request->password)|| !isset($request->email)|| !isset($request->address)|| !isset($request->status)){
-			$data = 'Name, Username, Password, Email, Contact Primary Number, Contact Secondary Number, Address And Status is required';
-			return json_encode($data);
-		}
-		$password = DB::table('owners')->where('password',$request->password)->first();
-		if(isset($password)){
-			$data = 'Password Already Taken';
-		    return json_encode($data);
-		}
-		if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-			$data = 'Email Format is not okay';
-		    return json_encode($data);
-	  }
-
-		if(!is_numeric($request->number_primary) || strlen($request->number_primary) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->number_secondary) || strlen($request->number_secondary) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-		}
-	
-		DB::table('owners')->insert([
-			'name' => $request->name,
-			'username' => $request->username, 
-			'password' => $request->password, 
-			'primary_number' => $request->username, 
-			'secondary_number' => $request->username, 
-			'email' => $request->email, 
-			'address' => $request->address, 
-			'status' => $request->status, 
-
-
-
-		]);
-		$response = 'Enquiry Successfully Sent';
-		return json_encode($response);
-	}
-
-	public function add_driver_attendance(Request $request){
-		if(!isset($request->name) || !isset($request->number) || !isset($request->vid) || !isset($request->logged_in) || !isset($request->login_hours) || !isset($request->today_collection) || !isset($request->status)){
-			$data = 'Driver Name, Contact Number, vid, Logged in, Login Hours, Today Collection and Status is required';
-			return json_encode($data);
-		}
-
-		if(!is_numeric($request->number) || strlen($request->number) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-		}
-
-		if(!is_numeric($request->login_hours)){
-			$data = 'Login Hours should be number of hours';
-			return json_encode($data);
-		}
-	
-		DB::table('attendance')->insert([
-			'driver_name' => $request->name,
-			'mobile' => $request->number, 
-			'vid' => $request->vid, 
-			'login_hours' => $request->login_hours, 
-			'logged_in' => $request->logged_in,
-			'today_collection' => $request->today_collection,
-			'status' => $request->status,
-
-		]);
-		$response = 'Attendance Added Successfully';
-		return json_encode($response);
-	}
-
-	public function add_driver_rating(Request $request){
-		if(!isset($request->driver_id) || !isset($request->user_id) || !isset($request->rating) || !isset($request->ride_id) ){
-			$data = 'Driver ID, User ID, Rating and Ride ID is required';
-			return json_encode($data);
-		}
-        $check = DB::table('driver_ratings')->where('user_id',$request->user_id)->where('ride_id', $request->ride_id)->first();
-
-		if(isset($check)){
-			$data = 'You cannot rate twice to this ride';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->driver_id)){
-			$data = 'Driver ID must be Numberic';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->user_id)){
-			$data = 'User ID must be Numberic';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->ride_id)){
-			$data = 'Ride ID must be Numberic';
-			return json_encode($data);
-		}
-
-		if(!is_numeric($request->rating)){
-			$data = 'Invalid Rating';
-			return json_encode($data);
-		}
-		if(($request->rating < 0) || ($request->rating > 5))
-		{
-			$data = 'Invalid Rating, Rating should be between 0 and 5';
-			return json_encode($data);
-		}
-	
-		DB::table('driver_ratings')->insert([
-			'driver_id' => $request->driver_id,
-			'user_id' => $request->user_id, 
-			'rating' => $request->rating, 
-			'ride_id' => $request->ride_id, 
-			
-
-		]);
-		$response = 'Rating Added Successfully';
-		return json_encode($response);
-	}
-
-	public function postaddpromocode(Request $request){
-        
-		if(!isset($request->discount) || !isset($request->date)  ){
-			$data = 'Discount and Expiry Date are required';
-			return json_encode($data);
-		}
-
-		if(!is_numeric($request->discount)){
-			$data = 'Invalid Discount Value';
-			return json_encode($data);
-		}      
-        
-        $date = date('Y-m-d', time());
-        
-        if($date > $request->date){
-            $data = 'Invalid Expiry Date, The date entered is already expired';
-			return json_encode($data);
-
-        }
-		
-        
-
-        $alph = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        $code='';
-
-        for($i=0;$i<7;$i++){
-           $code .= $alph[rand(0, 55)];
-        }
-        
-        
-
-             DB::Table('promo_codes')->insert([
-            
-            'discount' => $request->discount,
-            'code' => $code,
-            'expiry' => $request->date,
-            
-            ]);
-
-			$data = 'PromoCode Created';
-			return json_encode($data);
-    }
-
-	public function invitefriend(Request $request){
-		if(!isset($request->id)){
-			$data = 'ID is required';
-			return json_encode($data);
-		}
-
-		// $url = sprintf(
-		// 	"%s://%s%s",
-		// 	isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-		// 	$_SERVER['SERVER_NAME'],
-		// 	$_SERVER['REQUEST_URI']
-		//   );
-		
-			
-		$url = "http://127.0.0.1/api/sign_up?id=".$request->id;
-		return $url;
-	}
-
-	public function add_vehicle(Request $request){
-		if((!isset($request->vid)) || (!isset($request->reg_no)) || (!isset($request->model)) || (!isset($request->driver_name)) )
-		{
-			$data = 'Registration Number, Driver Name, Model, VID is required';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->vid)){
-			$data = 'Invalid VID Value';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->reg_no)){
-			$data = 'Invalid Registration Number, Should be numeric value';
-			return json_encode($data);
-		}
-		if(!is_numeric($request->km_reading)){
-			$data = 'Invalid Km Reading, Should be numeric value';
-			return json_encode($data);
-		}
-		
-		DB::table('vehicles')->insert([
-			'driver_name' => $request->driver_name,
-			'reg_no' => $request->reg_no, 
-			'vid' => $request->vid, 
-			'km_reading' => $request->km_reading, 
-			'model' => $request->model, 
-			'status' => "Offline", 	
-
-		]);
-
-		$response = 'Successfully Added Material';
-		return $response;
-	}
-
-
-	
-	public function all_clients(){
-		$data = DB::table('clients')->get();
-		return json_encode($data);
-	}
 	public function choose_vehicle(Request $request){
 		$response = (object) null;
 		if(!isset($request->vehicle_id)){
@@ -541,7 +264,54 @@ class APIController extends Controller
 		}
 	}
 
+	public function calculateFare(Request $request){
+		$response = (object) null;
+		if(!isset($request->start_lat) ||
+		!isset($request->start_long) ||
+		!isset($request->end_lat) ||
+		!isset($request->end_long) ||
+		!isset($request->vehicle_type)){
+			$response->status = 400;
+			$response->message = 'starting and ending lat, long with vehicle type is required ';
+			$response->data = null;
+			return json_encode($response);
+		}
+		$vehicleType = DB::table('vehicle_type_fares')->where('name',$request->vehicle_type)->first();
+		if(!$vehicleType){
+			$response->status = 400;
+			$response->message = 'vehicle type does not exist ';
+			$response->data = null;
+			return json_encode($response);
+		}
+		$distance = $this->distance($request->start_lat, $request->start_long, $request->end_lat, $request->end_long, 'K');
+		return $vehicleType->fare_rate * $distance;
+	}
+
+	protected function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+		if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+		  return 0;
+		}
+		else {
+		  $theta = $lon1 - $lon2;
+		  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+		  $dist = acos($dist);
+		  $dist = rad2deg($dist);
+		  $miles = $dist * 60 * 1.1515;
+		  $unit = strtoupper($unit);
+
+		  if ($unit == "K") {
+			return round($miles * 1.609344);
+		  } else if ($unit == "N") {
+			return round($miles * 0.8684);
+		  } else {
+			return round($miles);
+		  }
+		}
+	}
+
 	public function booking_history(Request $request){
 
 	}
 }
+
+

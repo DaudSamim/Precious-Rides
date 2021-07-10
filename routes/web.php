@@ -15,7 +15,9 @@
 Route::get('/', '\App\Http\Controllers\UserController@getLogin');
 Route::get('/login', '\App\Http\Controllers\UserController@getLogin')->name('login');
 Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
-
+Route::post('/signup', '\App\Http\Controllers\APIController@sign_up');
+Route::post('/verifyOPT', '\App\Http\Controllers\APIController@verifyOPT');
+Route::post('/calculateFare', '\App\Http\Controllers\APIController@calculateFare');
 
 
 Route::group(['middleware' => 'auth'], function () {
