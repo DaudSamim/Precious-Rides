@@ -18,6 +18,15 @@ Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
 Route::post('/signup', '\App\Http\Controllers\APIController@sign_up');
 Route::post('/verifyOPT', '\App\Http\Controllers\APIController@verifyOPT');
 Route::post('/calculateFare', '\App\Http\Controllers\APIController@calculateFare');
+Route::post('/clientBookingHistory', '\App\Http\Controllers\APIController@booking_history');
+Route::post('/availableVehicles', '\App\Http\Controllers\APIController@availableVehicles');
+Route::post('/driverRideRequests', '\App\Http\Controllers\APIController@driverRideRequests');
+Route::post('/driverRideConfirmed', '\App\Http\Controllers\APIController@driverRideConfirmed');
+Route::post('/clientNotifications', '\App\Http\Controllers\APIController@clientNotifications');
+Route::post('/driverNotifications', '\App\Http\Controllers\APIController@driverNotifications');
+Route::post('/clientTips', '\App\Http\Controllers\APIController@clientTips');
+Route::post('/driverVehicleList', '\App\Http\Controllers\APIController@driverVehicleList');
+Route::post('/driverDocuments', '\App\Http\Controllers\APIController@driverDocuments');
 
 
 Route::group(['middleware' => 'auth'], function () {

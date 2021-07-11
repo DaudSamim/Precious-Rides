@@ -4,14 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
-use Twilio\Rest\Client;
 
 class APIController extends Controller
 {
-	protected $TWILIO_SID='AC2593330273586414db804535cd733cbc';
-	protected $TWILIO_AUTH_TOKEN="18e274a2edaea75dccca8b7bd2cf960d";
-	protected $TWILIO_NUMBER="+19142686859";
-
 	public function sign_up(Request $request){
 		if(!isset($request->email) || !isset($request->number)){
 			$data = 'Email and Contact Number is required';
@@ -26,23 +21,6 @@ class APIController extends Controller
 		if(!is_numeric($request->number) || strlen($request->number) != 11){
 			$data = 'Number Format is not okay';
 			return json_encode($data);
-			$status = 400;
-			$message = 'Email Format is not okay';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
-		}
-
-		if(!is_numeric($request->number) || strlen($request->number) != 13){
-			$status = 400;
-			$message = 'Number Format is not okay';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
 		}
 
 		if(DB::table('clients')->where('email',$request->email)->first()){
@@ -50,65 +28,15 @@ class APIController extends Controller
 			return json_encode($data);
 		}
 
-		$code = $this->getRandomAuthCode();
-		$this->sendMessage($request->number, $this->getClientAuthMessage($code));
-
-
 		DB::table('clients')->insert([
 			'email' => $request->email,
 			'number' => $request->number,
-			'verification_code' => $code,
-			'verified' => false
 		]);
 
 		$status = 200;
 		$message = 'Client Successfully Stored';
 		$data = DB::table('clients')->orderBy('id','desc')->first();
-		$response->status = $status;
-		$response->message = $message;
-		$response->data = $data;
 
-		return json_encode($response);
-	}
-
-	public function verifyOPT(Request $request){
-		$response = (object) null;
-		if(!isset($request->opt) || !isset($request->clientId)){
-			$status = 400;
-			$message = 'OPT and client id are required';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
-		}
-		$client = DB::table('clients')->find($request->clientId);
-		if(!$client){
-			$status = 400;
-			$message = 'Client does not exist against this id';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
-		}
-		if($client->verification_code == $request->opt){
-			DB::table('clients')->where('id',$request->clientId)->update([
-				'verified'=>'true'
-			]);
-			$response->status = 200;
-			$response->message = 'Client Verified';
-			$response->data = true;
-			return json_encode($response);
-		}
-		else{
-			$response->status = 200;
-			$response->message = 'OPT does not match';
-			$response->data = false;
-			return json_encode($response);
-		}
-	}
-	public function login(Request $request){
 		$response = (object) null;
 		$response->status = $status;
 		$response->message = $message;
@@ -310,8 +238,171 @@ class APIController extends Controller
 	}
 
 	public function booking_history(Request $request){
+        $response = (object) null;
+		if(!isset($request->clinetId)){
+			$response->status = 400;
+			$response->message = 'Client Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $response->data = DB::table('trips')->where('customer_id',$request->clientId);
+        $response->status = 200;
+        return $response;
+    }
 
-	}
+    public function driver_online_offline_status(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverName)){
+			$response->status = 400;
+			$response->message = 'Driver Name is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $driverAttendence = DB::table('attendance')->where('driver_name',$request->driverName)->first;
+        $response->data = $driverAttendence->status;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function availableVehicles(Request $request){
+        $response = (Object) null;
+        $availableVehicles = DB::table('attendance')->where('status','online')->get(['vid']);
+        $response->data = $availableVehicles;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverRideRequests(Request $request){
+        $response = (Object) null;
+        $requests = DB::table('ride_request')->get();
+        $response->data = $requests;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverRideConfirmed(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $requests = DB::table('ride_request')->where('driver_id', $request->driverId);
+        $response->data = $requests;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function clientNotifications(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId)){
+			$response->status = 400;
+			$response->message = 'Client Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $notifications = DB::table('client_notification')->where('client_id', $request->clientId);
+        $response->data = $notifications;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverNotifications(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $notifications = DB::table('driver_notification')->where('driver_id', $request->driverId);
+        $response->data = $notifications;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function clientTips(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId)){
+			$response->status = 400;
+			$response->message = 'Client Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $requests = DB::table('trips')->where('customer_id', $request->clientId)->get(['tip']);
+        $response->data = $requests;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function paymentTypes(Request $request){
+        $response = (Object) null;
+        $paymentTypes = DB::table('payment_type')->get();
+        $response->data = $paymentTypes;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverRideHistory(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $tripsHistory = DB::table('trips')->where('driver_id', $request->driverId)->get();
+        $response->data = $tripsHistory;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverProfileData(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $driver = DB::table('drivers')->get($request->driverId);
+        $totalKms = DB::table('trips')->where('driver_id', $request->driverId)->sum('distance_km');
+        $totalTimeMinutes = DB::table('trips')->where('driver_id', $request->driverId)->sum('time_taken_minutes');
+        $totalRides = DB::table('trips')->where('driver_id', $request->driverId)->get()->count();
+        $response->data->driver = $driver;
+        $response->data->totalKms = $totalKms;
+        $response->data->totalTimeMinutes = $totalTimeMinutes;
+        $response->data->totalRides = $totalRides;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverVehicleList(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $vehicles = DB::table('driver_vehicles')->where('driver_id', $request->driverId)->get();
+        $response->data = $vehicles;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function driverDocuments(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $documents = DB::table('drivers')->where('id', $request->driverId)->get(['licence_url','identity_card_url']);
+        $response->data = $documents;
+        $response->status = 200;
+        return $response;
+    }
 }
-
-
