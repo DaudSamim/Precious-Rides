@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use Twilio\Rest\Client;
 
 class APIController extends Controller
 {
+	protected $TWILIO_SID='AC2593330273586414db804535cd733cbc';
+	protected $TWILIO_AUTH_TOKEN="18e274a2edaea75dccca8b7bd2cf960d";
+	protected $TWILIO_NUMBER="+19142686859";
+
 	public function sign_up(Request $request){
 		if(!isset($request->email) || !isset($request->number)){
 			$data = 'Email and Contact Number is required';
@@ -21,6 +26,23 @@ class APIController extends Controller
 		if(!is_numeric($request->number) || strlen($request->number) != 11){
 			$data = 'Number Format is not okay';
 			return json_encode($data);
+			$status = 400;
+			$message = 'Email Format is not okay';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 13){
+			$status = 400;
+			$message = 'Number Format is not okay';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
 		}
 
 		if(DB::table('clients')->where('email',$request->email)->first()){
@@ -28,15 +50,65 @@ class APIController extends Controller
 			return json_encode($data);
 		}
 
+		$code = $this->getRandomAuthCode();
+		$this->sendMessage($request->number, $this->getClientAuthMessage($code));
+
+
 		DB::table('clients')->insert([
 			'email' => $request->email,
 			'number' => $request->number,
+			'verification_code' => $code,
+			'verified' => false
 		]);
 
 		$status = 200;
 		$message = 'Client Successfully Stored';
 		$data = DB::table('clients')->orderBy('id','desc')->first();
+		$response->status = $status;
+		$response->message = $message;
+		$response->data = $data;
 
+		return json_encode($response);
+	}
+
+	public function verifyOPT(Request $request){
+		$response = (object) null;
+		if(!isset($request->opt) || !isset($request->clientId)){
+			$status = 400;
+			$message = 'OPT and client id are required';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
+		}
+		$client = DB::table('clients')->find($request->clientId);
+		if(!$client){
+			$status = 400;
+			$message = 'Client does not exist against this id';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
+		}
+		if($client->verification_code == $request->opt){
+			DB::table('clients')->where('id',$request->clientId)->update([
+				'verified'=>'true'
+			]);
+			$response->status = 200;
+			$response->message = 'Client Verified';
+			$response->data = true;
+			return json_encode($response);
+		}
+		else{
+			$response->status = 200;
+			$response->message = 'OPT does not match';
+			$response->data = false;
+			return json_encode($response);
+		}
+	}
+	public function login(Request $request){
 		$response = (object) null;
 		$response->status = $status;
 		$response->message = $message;
@@ -405,4 +477,8 @@ class APIController extends Controller
         $response->status = 200;
         return $response;
     }
+
 }
+
+
+
