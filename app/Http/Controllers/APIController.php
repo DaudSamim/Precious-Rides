@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ClientWallet;
+use App\DriverWallet;
 use Illuminate\Http\Request;
 use DB;
 use Twilio\Rest\Client;
@@ -344,7 +346,7 @@ class APIController extends Controller
         return $response;
     }
 
-    public function driverRideRequests(Request $request){
+    public function getDriverRideRequests(Request $request){
         $response = (Object) null;
         $requests = DB::table('ride_request')->get();
         $response->data = $requests;
@@ -352,7 +354,66 @@ class APIController extends Controller
         return $response;
     }
 
-    public function driverRideConfirmed(Request $request){
+    public function addRideRequest(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId) ||
+        !isset($request->start_lat) ||
+        !isset($request->start_long) ||
+        !isset($request->end_lat) ||
+        !isset($request->end_long)){
+			$response->status = 400;
+			$response->message = 'Client Id, start and end lat long are required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $status = "REQUESTED";
+		DB::table('ride_request')->insert([
+			'start_lat' => $request->start_lat,
+			'start_long' => $request->start_long,
+			'end_lat' => $request->end_lat,
+			'end_long' => $request->end_long,
+			'status' => $status,
+			'client_id' => $request->clientId
+		]);
+
+		$ride_request = DB::table('ride_request')->orderBy('id','desc')->first();
+        $response->message = "Ride requested";
+        $response->data = $ride_request;
+        $response->status = 200;
+        return $response;
+    }
+
+    //TODO : to be completed
+    public function confirmRideRequest(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId) ||
+        !isset($request->start_lat) ||
+        !isset($request->start_long) ||
+        !isset($request->end_lat) ||
+        !isset($request->end_long)){
+			$response->status = 400;
+			$response->message = 'Client Id, start and end lat long are required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $status = "REQUESTED";
+		DB::table('ride_request')->insert([
+			'start_lat' => $request->start_lat,
+			'start_long' => $request->start_long,
+			'end_lat' => $request->end_lat,
+			'end_long' => $request->end_long,
+			'status' => $status,
+			'client_id' => $request->clientId
+		]);
+
+		$ride_request = DB::table('ride_request')->orderBy('id','desc')->first();
+        $response->message = "Ride requested";
+        $response->data = $ride_request;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function getDriverRidesConfirmed(Request $request){
         $response = (Object) null;
         if(!isset($request->driverId)){
 			$response->status = 400;
@@ -380,6 +441,30 @@ class APIController extends Controller
         return $response;
     }
 
+    public function sendClientNotification(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId) ||
+        !isset($request->notificationType) ||
+        !isset($request->notificationTitle) ||
+        !isset($request->notificationBody)){
+			$response->status = 400;
+			$response->message = 'Client Id, notification type, notification title, notification body is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        DB::table('client_notification')->insert([
+			'notification_type' => $request->notificationType,
+			'notification_title' => $request->notificationTitle,
+			'notification_body' => $request->notificationBody,
+			'client_id' => $request->clientId
+		]);
+		$notification = DB::table('client_notification')->orderBy('id','desc')->first();
+        $response->data = $notification;
+        $response->message = "notification sent successfully";
+        $response->status = 200;
+        return $response;
+    }
+
     public function driverNotifications(Request $request){
         $response = (Object) null;
         if(!isset($request->driverId)){
@@ -390,6 +475,30 @@ class APIController extends Controller
 		}
         $notifications = DB::table('driver_notification')->where('driver_id', $request->driverId);
         $response->data = $notifications;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function sendDriverNotification(Request $request){
+        $response = (Object) null;
+        if(!isset($request->DriverId) ||
+        !isset($request->notificationType) ||
+        !isset($request->notificationTitle) ||
+        !isset($request->notificationBody)){
+			$response->status = 400;
+			$response->message = 'Driver Id, notification type, notification title, notification body is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        DB::table('driver_notification')->insert([
+			'notification_type' => $request->notificationType,
+			'notification_title' => $request->notificationTitle,
+			'notification_body' => $request->notificationBody,
+			'driver_id' => $request->driverId
+		]);
+		$notification = DB::table('driver_notification')->orderBy('id','desc')->first();
+        $response->data = $notification;
+        $response->message = "notification sent successfully";
         $response->status = 200;
         return $response;
     }
@@ -408,10 +517,43 @@ class APIController extends Controller
         return $response;
     }
 
+    //TODO to be completed, complete ride add tips
+    public function completeRide(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId)){
+			$response->status = 400;
+			$response->message = 'Client Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $requests = DB::table('trips')->where('customer_id', $request->clientId)->get(['tip']);
+        $response->data = $requests;
+        $response->status = 200;
+        return $response;
+    }
+
     public function paymentTypes(Request $request){
         $response = (Object) null;
         $paymentTypes = DB::table('payment_type')->get();
         $response->data = $paymentTypes;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function addPaymentType(Request $request){
+        $response = (Object) null;
+        if(!isset($request->paymentType)){
+			$response->status = 400;
+			$response->message = 'Payment type is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        DB::table('payment_type')->insert([
+            'paymentType' => $request->paymentType
+        ]);
+		$paymentType = DB::table('payment_type')->orderBy('id','desc')->first();
+        $response->data = $paymentType;
+        $response->message = "Payment type added successfully";
         $response->status = 200;
         return $response;
     }
@@ -464,6 +606,30 @@ class APIController extends Controller
         return $response;
     }
 
+    public function addDriverVehicle(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId) ||
+        !isset($request->vehicle) ||
+        !isset($request->vehicleTypeId)){
+			$response->status = 400;
+			$response->message = 'Driver Id, vehicle and vehicle type id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+        DB::table('driver_vehicles')->insert([
+			'driver_id' => $request->driverId,
+			'vehicle' => $request->vehicle,
+			'vehicle_type_id' => $request->vehicleTypeId
+		]);
+
+		$vehicle = DB::table('driver_vehicles')->orderBy('id','desc')->first();
+        $response->data = $vehicle;
+        $response->message = 'vehicle added successfully';
+        $response->status = 200;
+        return $response;
+    }
+
     public function driverDocuments(Request $request){
         $response = (Object) null;
         if(!isset($request->driverId)){
@@ -474,6 +640,104 @@ class APIController extends Controller
 		}
         $documents = DB::table('drivers')->where('id', $request->driverId)->get(['licence_url','identity_card_url']);
         $response->data = $documents;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function addDriverDocuments(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId) ||
+        !isset($request->licenceUrl) ||
+        !isset($request->IdCardUrl)){
+			$response->status = 400;
+			$response->message = 'Driver Id, licence URL and Id Card Url is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+        DB::table('drivers')->where('id',$request->driverId)->update([
+            'licence_url'=> $request->licenceUrl,
+            'identity_card_url' => $request->IdCardUrl
+        ]);
+
+        $documents = DB::table('drivers')->where('id', $request->driverId)->get(['licence_url','identity_card_url']);
+        $response->data = $documents;
+        $response->message = "Driver documents added";
+        $response->status = 200;
+        return $response;
+    }
+
+    public function getMessages(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId) ||
+            !isset($request->clientId)){
+			$response->status = 400;
+			$response->message = 'Driver and Client Ids are required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $messages = DB::table('messages')->where('client_id', $request->clientId)->where('driver_id',$request->driverId)
+            ->get();
+        $response->data = $messages;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function sendMessages(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId) ||
+            !isset($request->clientId) ||
+            !isset($request->sender) ||
+            !isset($request->message)){
+			$response->status = 400;
+			$response->message = 'Driver Id, ClientId, message and sender(client/driver) are required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+		DB::table('messages')->insert([
+			'message_body' => $request->message,
+			'client_id' => $request->clientId,
+			'driver_id' => $request->driverId,
+			'sender' => $request->sender
+		]);
+
+		$message = DB::table('messages')->orderBy('id','desc')->first();
+
+        $response->data = $message;
+        $response->message = "message sent successfully";
+        $response->status = 200;
+        return $response;
+    }
+
+    public function getClientWallet(Request $request){
+        $response = (Object) null;
+        if(!isset($request->clientId)){
+			$response->status = 400;
+			$response->message = 'ClientId is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+        $wallet = ClientWallet::where('client_id',$request->clientId)->get();
+
+        $response->data = $wallet;
+        $response->status = 200;
+        return $response;
+    }
+
+    public function getDriverWallet(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverId)){
+			$response->status = 400;
+			$response->message = 'Driver Id is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+        $wallet = DriverWallet::where('driver_id',$request->driverId)->get();
+
+        $response->data = $wallet;
         $response->status = 200;
         return $response;
     }
