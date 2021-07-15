@@ -16,13 +16,13 @@ class CreateEnquiriesTable extends Migration
         Schema::create('enquiries', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->string('enquiry');
-            $table->string('name');
-            $table->string('number');
-            $table->string('date');
-            $table->string('type');
-            $table->string('description');
-            $table->string('status');
+            $table->string('enquiry')->nullable();
+            $table->string('name')->nullable();
+            $table->string('number')->nullable();
+            $table->string('date')->nullable();
+            $table->string('type')->nullable();
+            $table->string('description')->nullable();
+            $table->string('status')->nullable();
 
             $table->timestamps();
         });

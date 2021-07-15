@@ -15,13 +15,13 @@ class CreateAttendanceTable extends Migration
     {
         Schema::create('attendance', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('vid');
-            $table->string('driver_name');
-            $table->string('mobile');
-            $table->string('logged_in');
-            $table->string('login_hours');
-            $table->string('today_collection');
-            $table->string('status');
+            $table->string('vid')->nullable();
+            $table->string('driver_name')->nullable();
+            $table->string('mobile')->nullable();
+            $table->string('logged_in')->nullable();
+            $table->string('login_hours')->nullable();
+            $table->string('today_collection')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

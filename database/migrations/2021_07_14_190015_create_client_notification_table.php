@@ -15,11 +15,11 @@ class CreateClientNotificationTable extends Migration
     {
         Schema::create('client_notification', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('notification_type');
-            $table->string('notification_title');
-            $table->string('notification_body');
+            $table->string('notification_type')->nullable();
+            $table->string('notification_title')->nullable();
+            $table->string('notification_body')->nullable();
 
-            $table->unsignedBigInteger('client_id');
+            $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients');
             $table->timestamps();
         });

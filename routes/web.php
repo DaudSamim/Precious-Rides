@@ -18,16 +18,32 @@ Route::post('/login', '\App\Http\Controllers\UserController@postLogin');
 Route::post('/signup', '\App\Http\Controllers\APIController@sign_up');
 Route::post('/verifyOPT', '\App\Http\Controllers\APIController@verifyOPT');
 Route::post('/calculateFare', '\App\Http\Controllers\APIController@calculateFare');
-Route::post('/clientBookingHistory', '\App\Http\Controllers\APIController@booking_history');
-Route::post('/availableVehicles', '\App\Http\Controllers\APIController@availableVehicles');
-Route::post('/driverRideRequests', '\App\Http\Controllers\APIController@getDriverRideRequests');
-Route::post('/driverRideConfirmed', '\App\Http\Controllers\APIController@getDriverRidesConfirmed');
-Route::post('/clientNotifications', '\App\Http\Controllers\APIController@clientNotifications');
-Route::post('/driverNotifications', '\App\Http\Controllers\APIController@driverNotifications');
-Route::post('/clientTips', '\App\Http\Controllers\APIController@clientTips');
-Route::post('/driverVehicleList', '\App\Http\Controllers\APIController@driverVehicleList');
-Route::post('/driverDocuments', '\App\Http\Controllers\APIController@driverDocuments');
-
+Route::post('/getBookingHistory', '\App\Http\Controllers\APIController@getBookingHistory');
+Route::post('/getDriverStatus', '\App\Http\Controllers\APIController@getDriverStatus');
+Route::post('/updateDriverStatus', '\App\Http\Controllers\APIController@updateDriverStatus');
+Route::post('/getAvailableVehicles', '\App\Http\Controllers\APIController@availableVehicles');
+Route::post('/addRideRequest', '\App\Http\Controllers\APIController@addRideRequest');
+Route::post('/confirmRideRequest', '\App\Http\Controllers\APIController@confirmRideRequest');
+Route::post('/getDriverRideRequests', '\App\Http\Controllers\APIController@getDriverRideRequests');
+Route::post('/getDriverRideConfirmed', '\App\Http\Controllers\APIController@getDriverRidesConfirmed');
+Route::post('/getClientNotifications', '\App\Http\Controllers\APIController@clientNotifications');
+Route::post('/sendClientNotification', '\App\Http\Controllers\APIController@sendClientNotification');
+Route::post('/getDriverNotifications', '\App\Http\Controllers\APIController@driverNotifications');
+Route::post('/sendDriverNotification', '\App\Http\Controllers\APIController@sendDriverNotification');
+Route::post('/getClientTips', '\App\Http\Controllers\APIController@clientTips');
+Route::post('/getDriverVehicleList', '\App\Http\Controllers\APIController@driverVehicleList');
+Route::post('/completeRide', '\App\Http\Controllers\APIController@completeRide');
+Route::post('/paymentTypes', '\App\Http\Controllers\APIController@paymentTypes');
+Route::post('/addPaymentType', '\App\Http\Controllers\APIController@addPaymentType');
+Route::post('/driverRideHistory', '\App\Http\Controllers\APIController@driverRideHistory');
+Route::post('/getDriverDocuments', '\App\Http\Controllers\APIController@driverDocuments');
+Route::post('/addDriverDocuments', '\App\Http\Controllers\APIController@addDriverDocuments');
+Route::post('/getDriverProfileData', '\App\Http\Controllers\APIController@driverProfileData');
+Route::post('/addDriverVehicle', '\App\Http\Controllers\APIController@addDriverVehicle');
+Route::post('/getMessages', '\App\Http\Controllers\APIController@getMessages');
+Route::post('/sendMessages', '\App\Http\Controllers\APIController@sendMessages');
+Route::post('/getClientWallet', '\App\Http\Controllers\APIController@getClientWallet');
+Route::post('/getDriverWallet', '\App\Http\Controllers\APIController@getDriverWallet');
 
 Route::group(['middleware' => 'auth'], function () {
 

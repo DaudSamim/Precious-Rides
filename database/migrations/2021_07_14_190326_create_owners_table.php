@@ -15,14 +15,14 @@ class CreateOwnersTable extends Migration
     {
         Schema::create('owners', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('username');
-            $table->string('password');
-            $table->string('primary_number');
-            $table->string('secondary_number');
-            $table->string('email');
-            $table->string('address');
-            $table->string('status');
+            $table->string('name')->nullable();
+            $table->string('username')->nullable();
+            $table->string('password')->nullable();
+            $table->string('primary_number')->nullable();
+            $table->string('secondary_number')->nullable();
+            $table->string('email')->nullable();
+            $table->string('address')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

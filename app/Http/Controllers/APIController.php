@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Attendence;
+use App\ClientNotification;
 use App\ClientWallet;
+use App\Driver;
+use App\DriverNotification;
 use App\DriverWallet;
+use App\RideRequest;
+use App\Trip;
 use Illuminate\Http\Request;
 use DB;
 use Twilio\Rest\Client;
@@ -11,10 +17,11 @@ use Twilio\Rest\Client;
 class APIController extends Controller
 {
 	protected $TWILIO_SID='AC2593330273586414db804535cd733cbc';
-	protected $TWILIO_AUTH_TOKEN="18e274a2edaea75dccca8b7bd2cf960d";
+	protected $TWILIO_AUTH_TOKEN="0f762b69e1ac4d5cf149e59bf8551257";
 	protected $TWILIO_NUMBER="+19142686859";
 
 	public function sign_up(Request $request){
+		$response = (object) null;
 		if(!isset($request->email) || !isset($request->number)){
 			$data = 'Email and Contact Number is required';
 			return json_encode($data);
@@ -25,25 +32,11 @@ class APIController extends Controller
 			return json_encode($data);
 		}
 
-		if(!is_numeric($request->number) || strlen($request->number) != 11){
-			$data = 'Number Format is not okay';
-			return json_encode($data);
-			$status = 400;
-			$message = 'Email Format is not okay';
-			$data = null;
-			$response->status = $status;
-			$response->message = $message;
-			$response->data = $data;
-			return json_encode($response);
-		}
-
 		if(!is_numeric($request->number) || strlen($request->number) != 13){
 			$status = 400;
 			$message = 'Number Format is not okay';
-			$data = null;
 			$response->status = $status;
 			$response->message = $message;
-			$response->data = $data;
 			return json_encode($response);
 		}
 
@@ -311,7 +304,7 @@ class APIController extends Controller
 		}
 	}
 
-	public function booking_history(Request $request){
+	public function getBookingHistory(Request $request){
         $response = (object) null;
 		if(!isset($request->clinetId)){
 			$response->status = 400;
@@ -321,10 +314,10 @@ class APIController extends Controller
 		}
         $response->data = DB::table('trips')->where('customer_id',$request->clientId);
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
-    public function driver_online_offline_status(Request $request){
+    public function getDriverStatus(Request $request){
         $response = (Object) null;
         if(!isset($request->driverName)){
 			$response->status = 400;
@@ -332,10 +325,27 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        $driverAttendence = DB::table('attendance')->where('driver_name',$request->driverName)->first;
+        $driverAttendence = Attendence::where('driver_name',$request->driverName)->first();
         $response->data = $driverAttendence->status;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
+    }
+
+    public function updateDriverStatus(Request $request){
+        $response = (Object) null;
+        if(!isset($request->driverName) ||
+        !isset($request->status)){
+			$response->status = 400;
+			$response->message = 'Driver Name and status is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+        $driverAttendence = Attendence::where('driver_name',$request->driverName)->first();
+        $driverAttendence->status = $request->status;
+        $driverAttendence->save();
+        $response->message = 'Driver status updated';
+        $response->status = 200;
+        return json_encode($response);;
     }
 
     public function availableVehicles(Request $request){
@@ -343,7 +353,7 @@ class APIController extends Controller
         $availableVehicles = DB::table('attendance')->where('status','online')->get(['vid']);
         $response->data = $availableVehicles;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function getDriverRideRequests(Request $request){
@@ -351,7 +361,7 @@ class APIController extends Controller
         $requests = DB::table('ride_request')->get();
         $response->data = $requests;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function addRideRequest(Request $request){
@@ -377,40 +387,41 @@ class APIController extends Controller
 		]);
 
 		$ride_request = DB::table('ride_request')->orderBy('id','desc')->first();
+
         $response->message = "Ride requested";
         $response->data = $ride_request;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
-    //TODO : to be completed
     public function confirmRideRequest(Request $request){
         $response = (Object) null;
-        if(!isset($request->clientId) ||
-        !isset($request->start_lat) ||
-        !isset($request->start_long) ||
-        !isset($request->end_lat) ||
-        !isset($request->end_long)){
+        if(!isset($request->rideId) ||
+           !isset($request->driverId)){
 			$response->status = 400;
-			$response->message = 'Client Id, start and end lat long are required';
+			$response->message = 'Ride id and driver Id is required';
 			$response->data = null;
 			return json_encode($response);
 		}
-        $status = "REQUESTED";
-		DB::table('ride_request')->insert([
-			'start_lat' => $request->start_lat,
-			'start_long' => $request->start_long,
-			'end_lat' => $request->end_lat,
-			'end_long' => $request->end_long,
-			'status' => $status,
-			'client_id' => $request->clientId
-		]);
+        $ride_request = RideRequest::find($request->rideId);
+        $ride_request->driver_id = $request->driverId;
+        $ride_request->save();
+        $driver = Driver::find($request->driverId);
+        echo('av');
+        $trip = Trip::insert([
+            'mobile' => $driver->mobile_number ,
+            'from_location' => $ride_request->start_lat . ',' . $ride_request->start_long,
+            'to_location' => $ride_request->end_lat . ',' . $ride_request->end_long,
+            'pickup_time' => time(),
+            'status' => 'CONFIRMED',
+            'client_id' => $ride_request->client_id,
+            'driver_id' => $request->driverId,
+        ]);
 
-		$ride_request = DB::table('ride_request')->orderBy('id','desc')->first();
-        $response->message = "Ride requested";
-        $response->data = $ride_request;
+        $response->message = "ride is confirmed by the driver";
+        $response->data = $trip;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function getDriverRidesConfirmed(Request $request){
@@ -424,7 +435,7 @@ class APIController extends Controller
         $requests = DB::table('ride_request')->where('driver_id', $request->driverId);
         $response->data = $requests;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function clientNotifications(Request $request){
@@ -435,10 +446,10 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        $notifications = DB::table('client_notification')->where('client_id', $request->clientId);
+        $notifications = ClientNotification::where('client_id', $request->clientId)->get();
         $response->data = $notifications;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function sendClientNotification(Request $request){
@@ -452,17 +463,17 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        DB::table('client_notification')->insert([
-			'notification_type' => $request->notificationType,
-			'notification_title' => $request->notificationTitle,
-			'notification_body' => $request->notificationBody,
-			'client_id' => $request->clientId
-		]);
-		$notification = DB::table('client_notification')->orderBy('id','desc')->first();
-        $response->data = $notification;
+
+        $notification = new ClientNotification;
+        $notification->notification_type = $request->notificationType;
+        $notification->notification_title = $request->notificationTitle;
+        $notification->notification_body = $request->notificationBody;
+        $notification->client_id = $request->clientId;
+        $notification->save();
+
         $response->message = "notification sent successfully";
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function driverNotifications(Request $request){
@@ -476,7 +487,7 @@ class APIController extends Controller
         $notifications = DB::table('driver_notification')->where('driver_id', $request->driverId);
         $response->data = $notifications;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function sendDriverNotification(Request $request){
@@ -490,17 +501,18 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        DB::table('driver_notification')->insert([
-			'notification_type' => $request->notificationType,
-			'notification_title' => $request->notificationTitle,
-			'notification_body' => $request->notificationBody,
-			'driver_id' => $request->driverId
-		]);
-		$notification = DB::table('driver_notification')->orderBy('id','desc')->first();
+
+        $notification = new DriverNotification;
+        $notification->notification_type = $request->notificationType;
+        $notification->notification_title = $request->notificationTitle;
+        $notification->notification_body = $request->notificationBody;
+        $notification->driver_id = $request->driverId;
+        $notification->save();
+
         $response->data = $notification;
         $response->message = "notification sent successfully";
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function clientTips(Request $request){
@@ -511,25 +523,34 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        $requests = DB::table('trips')->where('customer_id', $request->clientId)->get(['tip']);
-        $response->data = $requests;
+        $tips = DB::table('trips')->where('client_id', $request->clientId)->get(['tip']);
+        $response->data = $tips;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
-    //TODO to be completed, complete ride add tips
     public function completeRide(Request $request){
         $response = (Object) null;
-        if(!isset($request->clientId)){
+        if(!isset($request->tripId) ||
+        !isset($request->price) ||
+        !isset($request->timeTaken) ||
+        !isset($request->distance) ||
+        !isset($request->tip)){
 			$response->status = 400;
-			$response->message = 'Client Id is required';
+			$response->message = 'Trip id,price, time Taken (mins), distance (KM) and tip is required';
 			$response->data = null;
 			return json_encode($response);
 		}
-        $requests = DB::table('trips')->where('customer_id', $request->clientId)->get(['tip']);
-        $response->data = $requests;
+        $trip = Trip::find($request->tripId);
+        $trip->price = $request->price;
+        $trip->time_taken_minutes = $request->timeTaken;
+        $trip->distance_km = $request->distance;
+        $trip->tip = $request->tip;
+        $trip->save();
+        $response->message = 'ride is completed';
+        $response->data = $trip;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function paymentTypes(Request $request){
@@ -537,7 +558,7 @@ class APIController extends Controller
         $paymentTypes = DB::table('payment_type')->get();
         $response->data = $paymentTypes;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function addPaymentType(Request $request){
@@ -555,7 +576,7 @@ class APIController extends Controller
         $response->data = $paymentType;
         $response->message = "Payment type added successfully";
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function driverRideHistory(Request $request){
@@ -569,7 +590,7 @@ class APIController extends Controller
         $tripsHistory = DB::table('trips')->where('driver_id', $request->driverId)->get();
         $response->data = $tripsHistory;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function driverProfileData(Request $request){
@@ -580,16 +601,18 @@ class APIController extends Controller
 			$response->data = null;
 			return json_encode($response);
 		}
-        $driver = DB::table('drivers')->get($request->driverId);
+
+        $driver = DB::table('drivers')->find($request->driverId);
         $totalKms = DB::table('trips')->where('driver_id', $request->driverId)->sum('distance_km');
         $totalTimeMinutes = DB::table('trips')->where('driver_id', $request->driverId)->sum('time_taken_minutes');
         $totalRides = DB::table('trips')->where('driver_id', $request->driverId)->get()->count();
+        $response->data = (Object) null;
         $response->data->driver = $driver;
         $response->data->totalKms = $totalKms;
         $response->data->totalTimeMinutes = $totalTimeMinutes;
         $response->data->totalRides = $totalRides;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function driverVehicleList(Request $request){
@@ -603,7 +626,7 @@ class APIController extends Controller
         $vehicles = DB::table('driver_vehicles')->where('driver_id', $request->driverId)->get();
         $response->data = $vehicles;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function addDriverVehicle(Request $request){
@@ -627,7 +650,7 @@ class APIController extends Controller
         $response->data = $vehicle;
         $response->message = 'vehicle added successfully';
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function driverDocuments(Request $request){
@@ -641,7 +664,7 @@ class APIController extends Controller
         $documents = DB::table('drivers')->where('id', $request->driverId)->get(['licence_url','identity_card_url']);
         $response->data = $documents;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function addDriverDocuments(Request $request){
@@ -664,7 +687,7 @@ class APIController extends Controller
         $response->data = $documents;
         $response->message = "Driver documents added";
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function getMessages(Request $request){
@@ -680,7 +703,7 @@ class APIController extends Controller
             ->get();
         $response->data = $messages;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function sendMessages(Request $request){
@@ -707,7 +730,7 @@ class APIController extends Controller
         $response->data = $message;
         $response->message = "message sent successfully";
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function getClientWallet(Request $request){
@@ -723,7 +746,7 @@ class APIController extends Controller
 
         $response->data = $wallet;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
     public function getDriverWallet(Request $request){
@@ -739,7 +762,7 @@ class APIController extends Controller
 
         $response->data = $wallet;
         $response->status = 200;
-        return $response;
+        return json_encode($response);;
     }
 
 }

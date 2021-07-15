@@ -15,9 +15,10 @@ class CreateDriverWalletsTable extends Migration
     {
         Schema::create('driver_wallets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->double('available_balance');
+            $table->double('available_balance')->nullable();
+            $table->double('limit')->nullable();
 
-            $table->unsignedBigInteger('driver_id');
+            $table->unsignedBigInteger('driver_id')->nullable();
             $table->foreign('driver_id')->references('id')->on('drivers');
             $table->timestamps();
         });

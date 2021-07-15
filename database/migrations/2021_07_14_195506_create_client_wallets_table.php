@@ -15,9 +15,10 @@ class CreateClientWalletsTable extends Migration
     {
         Schema::create('client_wallets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->double('available_balance');
+            $table->double('available_balance')->nullable();
+            $table->double('limit')->nullable();
 
-            $table->unsignedBigInteger('client_id');
+            $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients');
             $table->timestamps();
         });

@@ -15,9 +15,9 @@ class CreateVehicleTypeFaresTable extends Migration
     {
         Schema::create('vehicle_type_fares', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('description');
-            $table->string('fare_rate');
+            $table->string('name')->nullable();
+            $table->string('description')->nullable();
+            $table->string('fare_rate')->nullable();
             $table->timestamps();
         });
     }

@@ -15,11 +15,11 @@ class CreateDriverNotificationTable extends Migration
     {
         Schema::create('driver_notification', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('notification_type');
-            $table->string('notificatio_title');
-            $table->string('notification_body');
+            $table->string('notification_type')->nullable();
+            $table->string('notificatio_title')->nullable();
+            $table->string('notification_body')->nullable();
 
-            $table->unsignedBigInteger('driver_id');
+            $table->unsignedBigInteger('driver_id')->nullable();
             $table->foreign('driver_id')->references('id')->on('drivers');
             $table->timestamps();
         });
