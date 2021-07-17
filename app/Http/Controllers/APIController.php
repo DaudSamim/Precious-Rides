@@ -12,12 +12,13 @@ use App\RideRequest;
 use App\Trip;
 use Illuminate\Http\Request;
 use DB;
+use Throwable;
 use Twilio\Rest\Client;
 
 class APIController extends Controller
 {
 	protected $TWILIO_SID='AC2593330273586414db804535cd733cbc';
-	protected $TWILIO_AUTH_TOKEN="0f762b69e1ac4d5cf149e59bf8551257";
+	protected $TWILIO_AUTH_TOKEN="46d93dc3fcaba4efffa12c09d0705f74";
 	protected $TWILIO_NUMBER="+19142686859";
 
 	public function sign_up(Request $request){
@@ -46,7 +47,14 @@ class APIController extends Controller
 		}
 
 		$code = $this->getRandomAuthCode();
-		$this->sendMessage($request->number, $this->getClientAuthMessage($code));
+
+        try {
+		    $this->sendMessage($request->number, $this->getClientAuthMessage($code));
+        } catch (Throwable $exception) {
+            $response->status = "Exception occoured in sending message, please verify twilio auth code and verify number";
+            $response->message = $exception;
+			return json_encode($response);
+        }
 
 
 		DB::table('clients')->insert([
