@@ -44,6 +44,9 @@ Route::post('/getMessages', '\App\Http\Controllers\APIController@getMessages');
 Route::post('/sendMessages', '\App\Http\Controllers\APIController@sendMessages');
 Route::post('/getClientWallet', '\App\Http\Controllers\APIController@getClientWallet');
 Route::post('/getDriverWallet', '\App\Http\Controllers\APIController@getDriverWallet');
+Route::post('/add-owner', '\App\Http\Controllers\APIController@add_owner');
+Route::post('/add-trip', '\App\Http\Controllers\APIController@add_trip');
+Route::post('/enquiries', '\App\Http\Controllers\APIController@add_enquiries');
 
 Route::group(['middleware' => 'auth'], function () {
 

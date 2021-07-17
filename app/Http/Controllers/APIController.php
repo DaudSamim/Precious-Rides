@@ -8,6 +8,7 @@ use App\ClientWallet;
 use App\Driver;
 use App\DriverNotification;
 use App\DriverWallet;
+use App\Enquiry;
 use App\RideRequest;
 use App\Trip;
 use Illuminate\Http\Request;
@@ -49,7 +50,7 @@ class APIController extends Controller
 		$code = $this->getRandomAuthCode();
 
         try {
-		    $this->sendMessage($request->number, $this->getClientAuthMessage($code));
+		    $this->sendTwilioMessage($request->number, $this->getClientAuthMessage($code));
         } catch (Throwable $exception) {
             $response->status = "Exception occoured in sending message, please verify twilio auth code and verify number";
             $response->message = $exception;
@@ -111,14 +112,97 @@ class APIController extends Controller
 			return json_encode($response);
 		}
 	}
-	public function login(Request $request){
+
+    public function add_owner(Request $request){
+		if(!isset($request->name) || !isset($request->number_primary) || !isset($request->number_secondary) || !isset($request->username) || !isset($request->password)|| !isset($request->email)|| !isset($request->address)|| !isset($request->status)){
+			$data = 'Name, Username, Password, Email, Contact Primary Number, Contact Secondary Number, Address And Status is required';
+			return json_encode($data);
+		}
+		$password = DB::table('owners')->where('password',$request->password)->first();
+		if(isset($password)){
+			$data = 'Password Already Taken';
+		    return json_encode($data);
+		}
+		if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+			$data = 'Email Format is not okay';
+		    return json_encode($data);
+	  }
+
+		if(!is_numeric($request->number_primary) || strlen($request->number_primary) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+		if(!is_numeric($request->number_secondary) || strlen($request->number_secondary) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+
+		DB::table('owners')->insert([
+			'name' => $request->name,
+			'username' => $request->username,
+			'password' => $request->password,
+			'primary_number' => $request->username,
+			'secondary_number' => $request->username,
+			'email' => $request->email,
+			'address' => $request->address,
+			'status' => $request->status,
+
+
+
+		]);
+		$response = 'Enquiry Successfully Sent';
+		return json_encode($response);
+	}
+
+    public function add_trip(Request $request){
+		if(!isset($request->customer_id) || !isset($request->number) || !isset($request->from_location) || !isset($request->to_location)|| !isset($request->pickup_time)|| !isset($request->dropoff_time) || !isset($request->status)){
+			$data = 'Customer ID, Mobile Number,Pickup Location, Destination, Pickup Time, Dropoff Time and Status is required';
+			return json_encode($data);
+		}
+
+		if(!is_numeric($request->number) || strlen($request->number) != 11){
+			$data = 'Number Format is not okay';
+			return json_encode($data);
+		}
+
+		DB::table('trips')->insert([
+			'customer_id' => $request->name,
+			'mobile' => $request->number,
+			'from_location' => $request->from_location,
+			'to_location' => $request->to_location,
+			'pickup_time' => $request->pickup_time,
+			'dropoff_time' => $request->dropoff_time,
+			'status' => $request->status,
+
+		]);
+		$response = 'Trip Successfully Sent';
+		return json_encode($response);
+	}
+
+    public function login(Request $request){
 		$response = (object) null;
+		if(!isset($request->number)){
+			$status = 400;
+			$message = 'Contact Number is required';
+			$data = null;
+			$response->status = $status;
+			$response->message = $message;
+			$response->data = $data;
+			return json_encode($response);
+		}
+
+		$data = DB::table('clients')->where('number',$request->number)->first();
+		$data->code = 1234;
+		$status = 200;
+		$message = 'Login Successfully';
+
 		$response->status = $status;
 		$response->message = $message;
 		$response->data = $data;
 
 		return json_encode($response);
 	}
+
 
 	public function all_clients(){
 		$data = DB::table('clients')->get();
@@ -198,7 +282,7 @@ class APIController extends Controller
 		    }
 	}
 
-	protected function sendMessage($recipientsPhoneNumber, $message){
+	protected function sendTwilioMessage($recipientsPhoneNumber, $message){
 		$client = new Client($this->TWILIO_SID, $this->TWILIO_AUTH_TOKEN);
 		$client->messages->create($recipientsPhoneNumber,
             ['from' => $this->TWILIO_NUMBER, 'body' => $message] );
@@ -771,6 +855,32 @@ class APIController extends Controller
         $response->data = $wallet;
         $response->status = 200;
         return json_encode($response);;
+    }
+
+    public function add_enquiries(Request $request){
+        $response = (Object) null;
+        if(!isset($request->name) ||
+        !isset($request->number) ||
+        !isset($request->type) ||
+        !isset($request->enquiry)){
+			$response->status = 400;
+			$response->message = 'Name, Number, Type And Enquiry is required';
+			$response->data = null;
+			return json_encode($response);
+		}
+
+		Enquiry::insert([
+			'name' => $request->name,
+			'number' => $request->number,
+			'type' => $request->type,
+			'enquiry' => $request->enqiry
+		]);
+
+        $enquiries = Enquiry::all();
+
+        $response->data = $enquiries;
+        $response->status = 200;
+        return json_encode($response);
     }
 
 }
